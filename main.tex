@@ -1,0 +1,311 @@
+% !TeX program = xelatex
+% !TeX encoding = UTF-8
+% 在 out 目录中运行：xelatex -interaction=nonstopmode -halt-on-error ../main.tex
+
+\PassOptionsToPackage{no-math}{fontspec}
+\documentclass[
+  12pt,
+  UTF8,
+  a4paper,
+  fontset=fandol,
+  oneside,
+  openany
+]{ctexrep}
+
+\AddToHook{package/arydshln/before}{
+  \RequirePackage{longtable}
+  \RequirePackage[table]{xcolor}
+}
+
+\RequirePackage{amsmath}
+\RequirePackage{array}
+\RequirePackage{arydshln}
+\RequirePackage{booktabs}
+\RequirePackage{caption}
+\RequirePackage{circuitikz}
+\RequirePackage{float}
+\RequirePackage[
+  bottom=2.54cm,
+  left=3.18cm,
+  right=3.18cm,
+  top=2.54cm
+]{geometry}
+\RequirePackage[hidelinks,unicode]{hyperref}
+\RequirePackage{longtable}
+\RequirePackage{subcaption}
+\RequirePackage{unicode-math}
+\RequirePackage[table]{xcolor}
+
+\usepackage{amsmath}
+\usepackage{array}
+\usepackage{arydshln}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{circuitikz}
+\usepackage{float}
+\usepackage[
+  bottom=2.54cm,
+  left=3.18cm,
+  right=3.18cm,
+  top=2.54cm
+]{geometry}
+\usepackage[hidelinks,unicode]{hyperref}
+\usepackage{longtable}
+\usepackage{subcaption}
+\usepackage{unicode-math}
+\usepackage[table]{xcolor}
+
+\definecolor{reviewgray}{gray}{0.42}
+\DeclareCaptionFont{wuhao}{\zihao{5}}
+\DeclareCaptionLabelFormat{figurelabel}{图#2}
+\DeclareCaptionLabelFormat{tablelabel}{表#2}
+\DeclareCaptionLabelSeparator{figurespace}{\hspace{1em}}
+\captionsetup[figure]{
+  font=wuhao,
+  justification=centering,
+  labelformat=figurelabel,
+  labelsep=figurespace
+}
+\captionsetup[subfigure]{
+  font=wuhao,
+  justification=centering,
+  labelformat=parens,
+  labelsep=space
+}
+\captionsetup[table]{
+  font=wuhao,
+  justification=centering,
+  labelformat=tablelabel,
+  labelsep=figurespace
+}
+\ctikzset{
+  bipoles/thickness=1,
+  quadpoles/thickness=1,
+  tripoles/thickness=1
+}
+\hypersetup{pdftitle={电力系统分析笔记}}
+\linespread{1.3}
+\pagestyle{plain}
+\raggedbottom{}
+\setcounter{secnumdepth}{5}
+\setcounter{tocdepth}{3}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0pt}
+\setmathfont{XITS Math}
+\setmathfont[version=bold]{XITS Math}
+
+\newcounter{example}[chapter]
+\newcounter{examplesubheading}[example]
+\newfontfamily\circlenumfont{Times New Roman}
+\newcommand{\exampletitle}[2][]{%
+  \refstepcounter{example}%
+  \par\addvspace{0.15cm}%
+  \noindent{\heiti\zihao{-4}\bfseries
+    ※\hspace{0.3em}例\theexample\hspace{1em}#2}%
+  \if\relax\detokenize{#1}\relax\else\label{#1}\fi
+  \par\nobreak{}
+}
+\newcommand{\examplesubheading}[1]{%
+  \stepcounter{examplesubheading}%
+  \ifnum\value{examplesubheading}=1
+    \begingroup
+      \ctexset{subsubsection={beforeskip=0pt}}%
+      \subsubsection*{%
+        \timescircled{\arabic{examplesubheading}}%
+        \hspace{0.5em}#1%
+      }%
+    \endgroup
+  \else
+    \subsubsection*{%
+      \timescircled{\arabic{examplesubheading}}%
+      \hspace{0.5em}#1%
+    }%
+  \fi
+}
+\newcommand{\reviewnote}[1]{%
+  \par\smallskip
+  {\color{reviewgray}\small\noindent【校核建议：#1】\par}
+  \smallskip
+}
+\newcommand{\figureplaceholder}[2]{%
+  \par\smallskip
+  {\color{reviewgray}\small\noindent【图像预留 #1：#2】\par}
+  \vspace{0.5cm}
+}
+\newcommand{\timescircled}[1]{%
+  \raisebox{0.5pt}{%
+    \tikz[
+      baseline=(circlednumber.base),
+      scale=0.82,
+      transform shape
+    ]{%
+      \node[
+        circle,
+        draw,
+        font=\circlenumfont\mdseries,
+        inner sep=0pt,
+        line width=0.4pt,
+        minimum size=1.15em
+      ] (circlednumber) {#1};%
+    }%
+  }%
+}
+\renewcommand{\thechapter}{\arabic{chapter}}
+\renewcommand{\theequation}{\arabic{chapter}-\arabic{equation}}
+\renewcommand{\theexample}{\thechapter-\arabic{example}}
+\renewcommand{\thefigure}{\arabic{chapter}-\arabic{figure}}
+\renewcommand{\thetable}{\arabic{chapter}-\arabic{table}}
+\renewcommand{\thesection}{\thechapter.\arabic{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\renewcommand{\thesubsubsection}{\thesubsection.\arabic{subsubsection}}
+\renewcommand{\theparagraph}{\thesubsubsection.\arabic{paragraph}}
+\renewcommand{\thesubparagraph}{\theparagraph.\arabic{subparagraph}}
+
+\ctexset{
+  chapter={
+    afterindent=true,
+    aftername=\quad,
+    afterskip=1.5ex,
+    beforeskip=0pt,
+    format=\heiti\centering\zihao{2}\bfseries,
+    name={第,章},
+    number=\chinese{chapter}
+  },
+  section={
+    afterindent=true,
+    aftername=\hspace{0.5em},
+    afterskip=1ex,
+    beforeskip=1ex,
+    format=\heiti\raggedright\zihao{3}\bfseries,
+    name={\S,},
+    number=\thesection
+  },
+  subsection={
+    afterindent=true,
+    aftername=\hspace{0.5em},
+    afterskip=0ex,
+    beforeskip=0.3cm,
+    format=\heiti\raggedright\zihao{4}\bfseries,
+    name={,},
+    number=\thesubsection
+  },
+  subsubsection={
+    afterindent=true,
+    aftername=\hspace{0.5em},
+    afterskip=0ex,
+    beforeskip=0.15cm,
+    format=\songti\raggedright\zihao{-4}\bfseries,
+    name={,},
+    number=\thesubsubsection
+  },
+  paragraph={
+    afterindent=true,
+    aftername=\hspace{0.5em},
+    afterskip=0ex,
+    beforeskip=0.5ex,
+    format=\songti\raggedright\zihao{-4},
+    indent=0pt,
+    name={,},
+    number=\theparagraph,
+    runin=false
+  },
+  subparagraph={
+    afterindent=true,
+    aftername=\hspace{0.5em},
+    afterskip=0ex,
+    beforeskip=0.5ex,
+    format=\songti\raggedright\zihao{-4},
+    indent=0pt,
+    name={,},
+    number=\thesubparagraph,
+    runin=false
+  },
+}
+
+\IfFontExistsTF{SimHei}{
+  \setCJKfamilyfont{zhhei}[AutoFakeBold=2]{SimHei}
+  \setCJKsansfont[AutoFakeBold=2]{SimHei}
+}{}
+\IfFontExistsTF{SimSun}{
+  \setCJKfamilyfont{zhsong}[AutoFakeBold=2]{SimSun}
+  \setCJKmainfont[AutoFakeBold=2]{SimSun}
+}{}
+\IfFontExistsTF{Times New Roman}{
+  \setmainfont{Times New Roman}
+}{
+  \setmainfont{TeX Gyre Termes}
+}{}
+
+\ExplSyntaxOn
+\prop_new:N \g_notes_block_owner_prop
+\prop_new:N \g_notes_block_declared_prop
+\prop_new:N \g_notes_block_defined_prop
+\prop_new:N \g_notes_block_used_prop
+
+\NewDocumentCommand{\DeclareContentBlock}{m m}{
+  \clist_set:Nn \l_tmpa_clist {#2}
+  \tl_set:Nx \l_tmpa_tl {\clist_item:Nn \l_tmpa_clist {1}}
+  \clist_map_inline:Nn \l_tmpa_clist {
+    \prop_if_in:NnTF \g_notes_block_owner_prop {#1/##1}
+      {\PackageError{notes}{Duplicate~#1~declaration:~##1}{Use~a~unique~label~in~the~header.}}
+      {\prop_gput:NnV \g_notes_block_owner_prop {#1/##1} \l_tmpa_tl}
+  }
+  \exp_args:NNx \prop_gput:Nnn \g_notes_block_declared_prop
+    {#1/\tl_use:N \l_tmpa_tl} {true}
+  \tl_new:c {g_notes_block_#1_\tl_use:N \l_tmpa_tl _tl}
+}
+
+\NewDocumentCommand{\DefineContentBlock}{m m +m}{
+  \prop_if_in:NnTF \g_notes_block_declared_prop {#1/#2} {
+    \prop_if_in:NnTF \g_notes_block_defined_prop {#1/#2}
+      {\PackageError{notes}{Duplicate~#1~definition:~#2}{Define~each~block~only~once.}}
+      {
+        \tl_gset:cn {g_notes_block_#1_#2_tl} {#3}
+        \prop_gput:Nnn \g_notes_block_defined_prop {#1/#2} {true}
+      }
+  }{\PackageError{notes}{Undeclared~#1~block:~#2}{Declare~the~first~label~of~the~block~in~the~header.}}
+}
+
+\cs_new_protected:Npn \notes_insert_block:nn #1#2 {
+  \prop_if_in:NnTF \g_notes_block_defined_prop {#1/#2} {
+    \prop_if_in:NnTF \g_notes_block_used_prop {#1/#2}
+      {\PackageError{notes}{Repeated~#1~insertion:~#2}{Use~ref~or~eqref~to~refer~to~an~existing~block.}}
+      {
+        \prop_gput:Nnn \g_notes_block_used_prop {#1/#2} {true}
+        \tl_use:c {g_notes_block_#1_#2_tl}
+      }
+  }{\PackageError{notes}{Undefined~#1~block:~#2}{Check~the~corresponding~source~definition.}}
+}
+
+\NewDocumentCommand{\InsertContentBlock}{m m}{
+  \prop_get:NnNTF \g_notes_block_owner_prop {#1/#2} \l_tmpa_tl
+    {\exp_args:NnV \notes_insert_block:nn {#1} \l_tmpa_tl}
+    {\PackageError{notes}{Unknown~#1~label:~#2}{Check~the~corresponding~header.}}
+}
+
+\cs_new_protected:Npn \notes_check_definitions: {
+  \prop_map_inline:Nn \g_notes_block_declared_prop {
+    \prop_if_in:NnF \g_notes_block_defined_prop {##1}
+      {\PackageError{notes}{Missing~block~definition:~##1}{Load~all~declared~source~files~before~the~document.}}
+  }
+}
+\AtBeginDocument{\notes_check_definitions:}
+\ExplSyntaxOff
+
+\input{equations/equation_header}
+\input{equations/equation_ch01}
+\input{figures/figure_header}
+\input{figures/figure_ch01}
+\input{tables/table_header}
+\input{tables/table_ch01}
+
+% ---------- 正文 ----------
+
+\begin{document}
+
+\input{chapters/chapter_ch01}
+
+% 新章节初稿预留：文字、公式和校核建议先直接写在此处。
+% 图像预留示例：\figureplaceholder{1-A}{待补图的结构、变量及参考方向。}
+
+\end{document}

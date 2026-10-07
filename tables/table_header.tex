@@ -1,0 +1,6 @@
+\NewDocumentCommand{\DeclareTable}{m}{\DeclareContentBlock{table}{#1}}
+\NewDocumentCommand{\DefineTable}{m +m}{\DefineContentBlock{table}{#1}{#2}}
+\NewDocumentCommand{\InsertTable}{m}{\InsertContentBlock{table}{#1}}
+
+% 表格声明预留；统一标签后再注册。
+% \DeclareTable{tab0101}

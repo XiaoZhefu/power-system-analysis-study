@@ -1,0 +1,6 @@
+\NewDocumentCommand{\DeclareFigure}{m}{\DeclareContentBlock{figure}{#1}}
+\NewDocumentCommand{\DefineFigure}{m +m}{\DefineContentBlock{figure}{#1}{#2}}
+\NewDocumentCommand{\InsertFigure}{m}{\InsertContentBlock{figure}{#1}}
+
+% 图像声明预留；统一标签后再注册。
+% \DeclareFigure{pic0101}

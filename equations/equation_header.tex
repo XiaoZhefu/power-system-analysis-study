@@ -1,0 +1,6 @@
+\NewDocumentCommand{\DeclareEquation}{m}{\DeclareContentBlock{equation}{#1}}
+\NewDocumentCommand{\DefineEquation}{m +m}{\DefineContentBlock{equation}{#1}{#2}}
+\NewDocumentCommand{\InsertEquation}{m}{\InsertContentBlock{equation}{#1}}
+
+% 公式声明预留；统一标签后再注册。
+% \DeclareEquation{equ0101}

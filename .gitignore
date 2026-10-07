@@ -1,0 +1,51 @@
+# LaTeX 编译目录
+/out/
+/build/
+/_minted*/
+
+# 当前主文档的编译结果；保留其他 PDF，便于存放矢量图和参考资料
+/main.pdf
+/main.dvi
+/main.xdv
+/main.ps
+
+# LaTeX 辅助文件、目录、交叉引用及同步定位信息
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.loa
+*.lol
+*.fls
+*.fdb_latexmk
+*.synctex
+*.synctex.gz
+*.synctex(busy)
+*.synctex.gz(busy)
+
+# BibTeX / Biber 生成文件（保留 .bib 文献数据库）
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+
+# 索引、术语表和缩略语表生成文件
+*.idx
+*.ind
+*.ilg
+*.glo
+*.gls
+*.glg
+*.acn
+*.acr
+*.alg
+
+# 编辑器临时文件与操作系统缓存
+*~
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+Desktop.ini
