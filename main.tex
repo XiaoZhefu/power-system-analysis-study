@@ -83,6 +83,33 @@
   quadpoles/thickness=1,
   tripoles/thickness=1
 }
+\tikzset{
+  notesline/.style={line width=0.65pt},
+  notesbus/.style={line width=1pt},
+  notesflow/.style={-{Latex[length=1.8mm]}, line width=0.65pt},
+  pics/notesgenerator/.style={code={
+    \draw[notesline] (0,0) circle[radius=0.38];
+    \node at (0,0.10) {$G$};
+    \node at (0,-0.14) {$\sim$};
+  }},
+  pics/notesmotor/.style={code={
+    \draw[notesline] (0,0) circle[radius=0.38];
+    \node at (0,0.10) {$M$};
+    \node at (0,-0.14) {$\sim$};
+  }},
+  pics/notestwowinding/.style={code={
+    \draw[notesline] (-0.22,0) circle[radius=0.32];
+    \draw[notesline] (0.22,0) circle[radius=0.32];
+  }},
+  pics/notesthreewinding/.style={code={
+    \draw[notesline] (-0.22,0) circle[radius=0.32];
+    \draw[notesline] (0.22,0) circle[radius=0.32];
+    \draw[notesline] (0,-0.36) circle[radius=0.32];
+  }},
+  pics/notesbusbar/.style={code={
+    \draw[notesbus] (0,-0.36) -- (0,0.36);
+  }}
+}
 \hypersetup{pdftitle={电力系统分析笔记}}
 \linespread{1.3}
 \pagestyle{plain}
@@ -305,7 +332,496 @@
 
 \input{chapters/chapter_ch01}
 
-% 新章节初稿预留：文字、公式和校核建议先直接写在此处。
-% 图像预留示例：\figureplaceholder{1-A}{待补图的结构、变量及参考方向。}
+% 手稿 1：MsgID=803879089740954952，文件修改时间 2026-10-07 19:24:06.303。
+% 四张图片均无可用的 EXIF 拍摄时间，按文件修改时间排序并核对上下文。
+\chapter{电力系统基本概念}
+
+\section{电力系统的组成}
+
+\subsection{电能的优势}
+
+\reviewnote{原稿仅注明“书 P1”，未列出具体内容；待依据所用教材补录。}
+
+\subsection{电力系统的定义}
+
+\reviewnote{原稿仅注明“书 P1”，未写出定义；待依据所用教材补录。}
+
+\subsection{电力系统简图与主要组成}
+
+电力系统的发电、输送、分配和消费环节，可以用单线图表示。
+
+% 原图 1-A。
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[every node/.style={font=\small}, notesline]
+    \draw (0.10,-0.28) -- (0.75,-0.17) -- (0.75,0.17)
+    -- (0.10,0.28) -- cycle;
+    \draw[dashed] (0.75,0) -- (1.27,0);
+    \pic at (1.65,0) {notesgenerator};
+    \pic at (3.50,0) {notestwowinding};
+    \pic at (8.00,0) {notestwowinding};
+    \draw (2.03,0) -- (2.96,0);
+    \draw (4.04,0) -- (7.46,0);
+    \draw (8.54,0) -- (12.20,0);
+    \draw[notesflow] (12.20,0) -- (12.20,-0.45);
+    \foreach \x in {2.45,4.50,7.00,9.00,11.50}
+    \pic at (\x,0) {notesbusbar};
+    \node at (0.43,-0.85) {汽轮机};
+    \node at (1.65,-0.85) {发电机};
+    \node at (3.50,-0.85) {升压变压器};
+    \node at (5.75,-0.85) {输电线路};
+    \node at (8.00,-0.85) {降压变压器};
+    \node at (10.20,-0.85) {配电线路};
+    \node at (12.20,-0.85) {负荷};
+    \draw (0.10,0.95) -- (0.10,1.08) -- (2.45,1.08) -- (2.45,0.95);
+    \draw (2.65,0.95) -- (2.65,1.08) -- (7.00,1.08) -- (7.00,0.95);
+    \draw (7.20,0.95) -- (7.20,1.08) -- (11.50,1.08) -- (11.50,0.95);
+    \draw (11.70,0.95) -- (11.70,1.08) -- (12.65,1.08) -- (12.65,0.95);
+    \node at (1.28,1.40) {电源};
+    \node at (4.83,1.40) {输送};
+    \node at (9.35,1.40) {分配};
+    \node at (12.18,1.40) {消费};
+  \end{tikzpicture}
+  \caption{电力系统的基本组成与单线示意}
+\end{figure}
+
+\reviewnote{本图按原稿概括电源、输送、分配和消费环节，各环节上方的括线用于说明流程，不能作为输电与配电的严格电压分界。汽轮机与发电机之间的虚线表示机械联接；电气部分的单线代表三相系统。更复杂的接线及包含关系仍需核对教材 P12。}
+
+\begin{itemize}
+  \item 发电机：发电设备，将其他形式的能量转化为电能。
+  \item 变压器：原稿记为降低有功（热）损耗、减小电压降、提升稳定性。
+  \item 线路：用于电能的输送和分配。
+  \item 负荷：用电设备，将电能转化为其他形式的能量；原稿另记“大部分转化为内能（发热）”。
+\end{itemize}
+
+\reviewnote{变压器的作用应与升压输电的效果区分。给定传输功率及功率因数时，提高输电电压可减小电流和线路有功损耗；变压器本身仍有损耗。“减小电压降、提升稳定性”也需结合线路参数和运行条件说明，不宜作为所有变压器的无条件结论。}
+
+\reviewnote{负荷的有用能量输出与最终耗散应区分。“大部分发热”若指最终转化为内能，需要明确这一含义；不能将电动机的机械输出等一概视为用电设备的损耗。}
+
+\subsection{一次系统与二次系统}
+
+上述单线图中的发电、变压、输配电及用电部分构成一次系统；用于监测、保护、控制和调节的部分构成二次系统。
+
+原稿指出，二次系统可通过互感线圈，将一次系统中的大电压或大电流转换为便于测量的小电压或小电流，其命名与变压器有相似之处，参见教材 P3。
+
+\reviewnote{这里应区分电压互感器和电流互感器。“一次系统/二次系统”是按设备功能分类，与变压器的“一次侧/二次侧”不是同一概念；建议后续补充互感器在测量及保护中的作用。}
+
+\subsection{直流输电系统}
+
+\reviewnote{原稿仅注明“书 P2”，未展开直流输电系统的结构与特点；暂不补造内容。}
+
+\section{电力系统的运行特点与基本要求}
+
+\subsection{运行特点}
+
+原稿列出的运行特点如下，参见教材 P4。
+
+\begin{enumerate}
+  \item 电能不能大量存储，发电、输电、配电和用电必须同时完成。
+  \item 输送快、传播快。
+  \item 与生产、生活密切相关。
+\end{enumerate}
+
+\reviewnote{“不能大量存储”应限定在传统电力系统的常规运行描述中。电池、抽水蓄能等可通过能量转换实现储存；更准确的表述是系统仍需保持实时功率平衡，储能可参与这一平衡。参见\href{https://www.energy.gov/energy-storage}{美国能源部储能说明}。}
+
+\subsection{基本要求}
+
+\begin{itemize}
+  \item 具有备用及储能手段，保证电能质量，主要涉及电压、频率和波形。
+  \item 监测、控制和保护应快速、准确，并保证系统稳定运行。
+  \item 保证供电可靠性；从技术和经济角度，负荷分为三级，参见教材 P4。
+  \item 保证经济性，降低煤耗率、水耗率及网损率。
+  \item 满足低碳、环保要求，关注新能源的发展。
+\end{itemize}
+
+\textbf{疑问：}分布式还是集中式？
+
+\reviewnote{原稿在低碳、环保要求旁提出上述问题，未给出结论。分布式与集中式的选择需结合能源分布、负荷位置及电网条件，后续再展开。}
+
+% 手稿 2：MsgID=6375615577849184564，文件修改时间 2026-10-07 19:24:09.828。
+原稿指出，新能源具有间歇性、波动性等不可控特点，对电力系统提出了挑战。
+
+\reviewnote{“间歇性”之后另有一项“地……性”的字迹不清，疑似“地域性”，待核对。上述描述主要适用于风能、太阳能等能源的可用出力，不宜将所有新能源的出力和控制能力一概归为不可控。}
+
+\section{电力系统的额定电压}
+
+本节原稿参考教材 P2-P4，并注明“均为线电压”。应区分系统额定电压与设备额定电压。
+
+\subsection{电压等级}
+
+原稿按低压、中压、高压、超高压和特高压列出以下五组电压等级。
+
+\begin{enumerate}
+  \item 低压：三相 $380~\mathrm{V}$，单相 $220~\mathrm{V}$。
+  \item 中压：$3~\mathrm{kV}$、$6~\mathrm{kV}$、$10~\mathrm{kV}$、$20~\mathrm{kV}$、$35~\mathrm{kV}$、$66~\mathrm{kV}$。
+  \item 高压：$110~\mathrm{kV}$、$220~\mathrm{kV}$、$330~\mathrm{kV}$；原稿在 $330~\mathrm{kV}$ 旁注“西北”。
+  \item 超高压：$500~\mathrm{kV}$、$700~\mathrm{kV}$；原稿旁注“西北”。
+  \item 特高压：$1000~\mathrm{kV}$。
+\end{enumerate}
+
+原稿在 $3~\mathrm{kV}$、$6~\mathrm{kV}$ 旁注明“地方用电”，在 $20~\mathrm{kV}$ 旁注明“现代城市”，在 $66~\mathrm{kV}$ 旁注明“东北（用得多）”，并写有“有时写作 $60~\mathrm{kV}$”。
+
+\reviewnote{“均为线电压”应限定在三相系统额定电压的表述中。列表中的三相 $380~\mathrm{V}$ 与单相 $220~\mathrm{V}$ 不能按同一种三相线电压理解；单相用电的电压参考端点需另行说明。}
+
+\reviewnote{原稿超高压第二个数值可辨为 $700~\mathrm{kV}$，常见电网等级则为 $750~\mathrm{kV}$，疑似漏写数字 5，暂保留原稿值，建议核对。国家电网资料使用 $500~\mathrm{kV}$、$750~\mathrm{kV}$ 的表述，参见\href{https://www.nc.sgcc.com.cn/zxzx/zbdt/2024/12/468382.shtml}{国家电网说明}。}
+
+\reviewnote{$60~\mathrm{kV}$ 与 $66~\mathrm{kV}$ 不宜直接当作同一个额定电压的两种写法；需核对教材版本和具体系统。低压至特高压的分类边界以及地域注记，也应以所采用教材和适用标准为准。}
+
+\subsection{规定额定电压的原因}
+
+规定额定电压有利于标准化、技术适配和经济性。
+
+\exampletitle{系统与设备额定电压的一般关系}
+
+% 原图 1-B。
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[every node/.style={font=\small}, notesline]
+    \pic at (0.65,0) {notesgenerator};
+    \pic at (2.50,0) {notestwowinding};
+    \pic at (7.70,0) {notestwowinding};
+    \draw (1.03,0) -- (1.96,0);
+    \draw (3.04,0) -- (7.16,0);
+    \draw (8.24,0) -- (12.15,0);
+    \draw[notesflow] (12.15,0) -- (12.15,-0.45);
+    \foreach \x in {1.40,3.60,6.60,8.80,11.50}
+    \pic at (\x,0) {notesbusbar};
+    \node at (0.65,1.25) {$U_{GN}$};
+    \node at (1.75,0.80) {$U_{T_1,1N}$};
+    \node at (3.45,0.80) {$U_{T_1,2N}$};
+    \node at (6.90,0.80) {$U_{T_2,1N}$};
+    \node at (8.65,0.80) {$U_{T_2,2N}$};
+    \node at (12.15,0.80) {$U$};
+    \node at (0.65,-0.80) {发电机};
+    \node at (2.50,-0.80) {$T_1$（升压）};
+    \node at (5.10,-0.80) {$L_1$};
+    \node at (7.70,-0.80) {$T_2$（降压）};
+    \node at (10.20,-0.80) {$L_2$};
+    \node at (12.15,-0.80) {等值负荷};
+    \node[draw, fill=gray!30, minimum width=2.2cm, minimum height=0.65cm]
+    at (0.95,-1.65) {系统 1：$U_{N1}$};
+    \node[draw, fill=gray!30, minimum width=3.6cm, minimum height=0.65cm]
+    at (5.10,-1.65) {系统 2：$U_{N2}$};
+    \node[draw, fill=gray!30, minimum width=3.6cm, minimum height=0.65cm]
+    at (10.50,-1.65) {系统 3：$U_{N3}$};
+    \node at (10.50,-2.35) {负荷电压偏差约 $\pm5\%$（原稿条件）};
+  \end{tikzpicture}
+  \caption{不同电压等级电网与设备端口电压}
+\end{figure}
+
+\reviewnote{图中三个 $U_N$ 表示各段系统额定电压，带设备下标的量表示相应设备或绕组的额定电压；负荷端的 $U$ 则为实际电压。示意图未单独画出厂用电或地方负载支路，不表示发电机侧没有这些负荷。各端口额定值的选择关系仍采用下文的简化条件。}
+
+系统额定电压可直接按各段电网选择，分别记为 $U_{N1}$、$U_{N2}$、$U_{N3}$。设备额定电压需要考虑负荷的电压要求和线路电压降，各段设备的选择不完全相同。
+
+原图在末端负荷旁标注电压范围。以 $U$ 表示该处实际电压，原稿关系整理为
+\begin{equation}
+  U=(0.95\sim1.05)U_{N3}.
+\end{equation}
+原稿在设备额定电压的选择依据中，将线路电压降取为约 $5\%$。
+
+\reviewnote{此处约 $\pm5\%$ 的负荷电压范围和约 $5\%$ 的线路电压降，是原稿用于说明额定电压选择的简化条件，不代表所有设备和电网的统一允许偏差或固定压降。}
+
+\examplesubheading{发电机}
+
+考虑厂用电或地方负载的供电要求，原稿将发电机额定电压取为
+\begin{equation}
+  U_{GN}=1.05U_{N1}.
+\end{equation}
+原稿注明，即使示意图未画出厂用电或地方负载，也可能存在这些用电部分。
+
+\examplesubheading{升压变压器}
+
+升压变压器 $T_1$ 与发电机直接相接，因此其一次侧额定电压与发电机额定电压相同：
+\begin{equation}
+  U_{T_1,1N}=U_{GN}=1.05U_{N1}.
+\end{equation}
+原稿先将二次侧额定电压取为高于相应系统额定电压 $5\%$，再考虑变压器自身约 $5\%$ 的电压降，最终记为
+\begin{equation}
+  U_{T_1,2N}=1.10U_{N2}.
+\end{equation}
+
+% 原图 1-C；中央支路保留原稿连接，并明确标注待核。
+\begin{figure}[H]
+  \centering
+  \begin{circuitikz}[every node/.style={font=\small}, line width=0.65pt]
+    \ctikzset{bipoles/length=0.85cm}
+    \draw (0,0) node[ocirc] {} -- (0.35,0)
+    to[european resistor, l=$R_1$] (2.35,0)
+    to[L, l=$X_1$] (4.55,0) -- (5.40,0)
+    to[L, l=$X_2'$] (7.70,0)
+    to[european resistor, l=$R_2'$] (10.00,0)
+    -- (10.80,0) node[ocirc] {};
+    \draw (0,-2.80) node[ocirc] {} -- (10.80,-2.80) node[ocirc] {};
+    \draw (5.40,0) node[circ] {}
+    to[L, l_=$X_0$] (5.40,-1.40)
+    to[european resistor, l_=$R_0$] (5.40,-2.80) node[circ] {};
+    \draw[dashed, color=reviewgray] (4.85,-0.20) rectangle (6.35,-2.55);
+    \node[align=center, color=reviewgray] at (7.55,-1.40)
+    {原稿中央支路\\连接与参数待核};
+    \draw[notesflow] (-0.50,-0.20) -- (-0.50,-2.60);
+    \node[left] at (-0.50,-1.40) {$U_1$};
+    \draw[notesflow] (11.30,-0.20) -- (11.30,-2.60);
+    \node[right] at (11.30,-1.40) {$U_2'$};
+    \draw[notesflow] (0.45,1.10) -- (10.35,1.10)
+    node[midway, above] {压降约 $5\%$（原稿估计）};
+    \node at (2.20,-3.35) {一次侧};
+    \node at (8.70,-3.35) {二次侧折算量};
+  \end{circuitikz}
+  \caption{变压器等效电路原稿示意（中央支路待核）}
+\end{figure}
+
+\reviewnote{图中电阻、电抗符号为整理时补拟；中央支路暂保留原稿可辨的串联画法，不视为已经确认的励磁模型。若它表示通常的铁耗电阻与磁化电抗，二者应按并联支路表示；若采用整体励磁阻抗的串联等效形式，参数含义又不同，需核对教材后确定。参见\href{https://www.rose-hulman.edu/class/ee/HTML/NSF/CCLI_EMD_DUE_0088904/PDFS/lecture_notes_10.pdf}{Rose-Hulman 变压器讲义}。}
+
+\reviewnote{本图采用单相等效电路的表达，撇号表示二次侧折算至一次侧的量。端口电压参考方向均从上端指向下端；它们不能未经绕组接线关系换算，就与前文三相系统的线电压额定值直接混用。上方 $5\%$ 箭头只是原稿采用的压降估计，不表示固定变比或实际测得的恒定压降。}
+
+\reviewnote{额定电压与运行端电压应区分。这里的 $5\%$、$10\%$ 是原稿采用的教材简化取值，不是变压器实际压降的恒定值；实际压降与负载及参数有关。两个 $5\%$ 若按比例逐次相乘，增幅为 $10.25\%$，不能称为精确的 $10\%$；本稿保留原稿约定取值。}
+
+\examplesubheading{线路与降压变压器}
+
+线路 $L_1$ 所属系统的额定电压为 $U_{N2}$。降压变压器 $T_2$ 的一次侧接入该电网，原稿记为
+\begin{equation}
+  U_{T_2,1N}=U_{N2}.
+\end{equation}
+当二次侧需要经线路向负荷供电时，原稿取
+\begin{equation}
+  U_{T_2,2N}=1.10U_{N3}.
+\end{equation}
+若二次侧直接接电动机，则取
+\begin{equation}
+  U_{T_2,2N}=1.05U_{N3}.
+\end{equation}
+负荷（例如电动机）的额定电压则按所在系统额定电压选择：
+\begin{equation}
+  U_{MN}=U_{N3}.
+\end{equation}
+
+原稿特别提示：有些图中直接标注发电机额定电压 $U_{GN}$，而不是系统额定电压 $U_N$；此时，与发电机直接相连的变压器一次侧应与 $U_{GN}$ 一致，不能再重复乘以 $1.05$。
+
+% 手稿 3：MsgID=3042999959834189390，文件修改时间 2026-10-07 19:24:15.914。
+\subsection{分接头与实际电压调节}
+
+前例采用的是较理想的电压关系，实际运行中不一定满足用电需求。为调节实际运行电压，可利用变压器分接头改变变比；原稿指出通常在高压侧设置，原因涉及调节准确性和电流较小，并区分有载调压与无载调压。
+
+% 原图 1-D。
+\begin{figure}[H]
+  \centering
+  \begin{circuitikz}[every node/.style={font=\small}, line width=0.65pt]
+    \ctikzset{bipoles/length=0.65cm}
+    \fill[gray!30] (5.65,1.13) rectangle (9.65,1.67);
+    \draw (1.20,2.20) node[ocirc] {} -- (2.00,2.20)
+    to[L] (2.00,-1.00) -- (1.20,-1.00) node[ocirc] {};
+    \draw (3.25,-1.15) -- (3.25,3.20);
+    \draw (3.40,-1.15) -- (3.40,3.20);
+    \draw (5.00,3.00) to[L] (5.00,2.20)
+    to[L] (5.00,1.40) to[L] (5.00,0.60)
+    to[L] (5.00,-0.20) to[L] (5.00,-1.00);
+    \foreach \y in {3.00,2.20,1.40,0.60,-0.20}
+    \draw (5.00,\y) -- (5.90,\y) node[ocirc] {};
+    \draw (5.00,-1.00) -- (5.90,-1.00) node[ocirc] {};
+    \fill (5.90,1.40) circle[radius=1.5pt];
+    \node[align=center] at (0.35,0.60) {低压侧\\$10.5~\mathrm{kV}$};
+    \node at (4.95,3.70) {高压侧分接头};
+    \node[anchor=west] at (6.15,3.00) {$+5\%$};
+    \node[anchor=west] at (6.15,2.20) {$+2.5\%$};
+    \node[anchor=west] at (6.15,1.40) {$0\%$（基准）};
+    \node[anchor=west] at (6.15,0.60) {$-2.5\%$};
+    \node[anchor=west] at (6.15,-0.20) {$-5\%$};
+    \node[anchor=west] at (6.15,-1.00) {公共端};
+    \node[anchor=west] at (8.10,3.00) {$254.1~\mathrm{kV}$};
+    \node[anchor=west] at (8.10,2.20) {$248.05~\mathrm{kV}$};
+    \node[anchor=west] at (8.10,1.40) {$242~\mathrm{kV}$};
+    \node[anchor=west] at (8.10,0.60) {$235.95~\mathrm{kV}$};
+    \node[anchor=west] at (8.10,-0.20) {$229.9~\mathrm{kV}$};
+    \node[align=center] at (6.35,-1.85)
+    {百分数基准：$242~\mathrm{kV}$\\右列为按该基准计算的分接标称电压};
+  \end{circuitikz}
+  \caption{变压器高压侧分接位置及其标称电压}
+\end{figure}
+
+原稿以 $-2.5\%$ 分接为例写为
+\begin{equation}
+  U_{\mathrm{tap}}=242~\mathrm{kV}\times97.5\%.
+\end{equation}
+
+\reviewnote{分接头百分数在本例中的基准是 $242~\mathrm{kV}$；图中右列数值是按此基准计算的分接标称电压，不是负荷侧的实际电压。绕组与接点位置为示意，不按实际匝数比例绘制。改变分接位置相当于改变有效匝数和额定变比，不能仅凭“正分接/负分接”的名称就断言负荷侧电压升降；应结合所调绕组和固定电压侧判断。原稿“提高……（准确性、电流小）”处的个别字迹仍待核对。}
+
+\exampletitle{多级电网与三绕组变压器的额定电压}
+
+% 原图 1-E。
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[t]{0.48\textwidth}
+    \centering
+    \begin{tikzpicture}[every node/.style={font=\small}, notesline]
+      \path[use as bounding box] (-0.40,-4.80) rectangle (6.60,1.50);
+      \pic at (0.60,0) {notesgenerator};
+      \pic at (2.80,0) {notesthreewinding};
+      \draw (0.98,0) -- (2.26,0);
+      \draw[notesflow] (3.34,0) -- (6.25,0);
+      \pic at (1.65,0) {notesbusbar};
+      \pic at (5.65,0) {notesbusbar};
+      \draw (2.80,-0.68) -- (2.80,-1.66);
+      \pic[rotate=90] at (2.80,-2.20) {notestwowinding};
+      \draw (2.80,-2.74) -- (2.80,-3.80) -- (3.76,-3.80);
+      \pic[rotate=90] at (2.80,-1.20) {notesbusbar};
+      \pic[rotate=90] at (2.80,-3.25) {notesbusbar};
+      \pic at (3.35,-3.80) {notesbusbar};
+      \pic at (4.30,-3.80) {notestwowinding};
+      \draw (4.84,-3.80) -- (5.72,-3.80);
+      \pic at (5.25,-3.80) {notesbusbar};
+      \pic at (6.10,-3.80) {notesmotor};
+      \node at (0.60,-0.85) {$13.8~\mathrm{kV}$};
+      \node at (2.80,0.75) {$T_1$};
+      \node at (5.10,0.60) {$110~\mathrm{kV}$};
+      \node[anchor=west] at (3.35,-1.20) {$35~\mathrm{kV}$};
+      \node at (1.70,-2.20) {$T_2$};
+      \node[anchor=east] at (2.20,-3.25) {$10~\mathrm{kV}$};
+      \node at (4.30,-4.45) {$T_3$};
+      \node at (5.25,-3.10) {$0.4~\mathrm{kV}$};
+    \end{tikzpicture}
+    \caption{电网电压等级与已知发电机额定值}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[t]{0.48\textwidth}
+    \centering
+    \begin{tikzpicture}[every node/.style={font=\small}, notesline]
+      \path[use as bounding box] (-0.40,-4.80) rectangle (6.60,1.50);
+      \pic at (0.60,0) {notesgenerator};
+      \pic at (2.80,0) {notesthreewinding};
+      \draw (0.98,0) -- (2.26,0);
+      \draw[notesflow] (3.34,0) -- (6.25,0);
+      \pic at (1.65,0) {notesbusbar};
+      \pic at (5.65,0) {notesbusbar};
+      \draw (2.80,-0.68) -- (2.80,-1.66);
+      \pic[rotate=90] at (2.80,-2.20) {notestwowinding};
+      \draw (2.80,-2.74) -- (2.80,-3.80) -- (3.76,-3.80);
+      \pic[rotate=90] at (2.80,-1.20) {notesbusbar};
+      \pic[rotate=90] at (2.80,-3.25) {notesbusbar};
+      \pic at (3.35,-3.80) {notesbusbar};
+      \pic at (4.30,-3.80) {notestwowinding};
+      \draw (4.84,-3.80) -- (5.72,-3.80);
+      \pic at (5.25,-3.80) {notesbusbar};
+      \pic at (6.10,-3.80) {notesmotor};
+      \node at (0.60,-0.85) {$13.8~\mathrm{kV}$};
+      \node at (1.65,0.65) {$13.8~\mathrm{kV}$};
+      \node at (2.80,1.20) {$T_1$};
+      \node at (5.10,0.65) {$121~\mathrm{kV}$};
+      \node[anchor=west] at (3.35,-0.95) {$38.5~\mathrm{kV}$};
+      \node[anchor=west] at (3.35,-1.65) {$35~\mathrm{kV}$};
+      \node at (1.70,-2.20) {$T_2$};
+      \node[anchor=west] at (3.35,-2.60) {$11~\mathrm{kV}$};
+      \node at (3.45,-3.10) {$10~\mathrm{kV}$};
+      \node at (4.30,-4.45) {$T_3$};
+      \node at (5.25,-3.10) {$0.4~\mathrm{kV}$};
+      \node[anchor=east] at (6.50,-4.45) {$0.38~\mathrm{kV}$};
+    \end{tikzpicture}
+    \caption{各设备与绕组的额定电压}
+  \end{subfigure}
+  \caption{多级电网及三绕组变压器的额定电压实例}
+\end{figure}
+
+\reviewnote{两幅图采用相同接线，左图保留原稿给出的电网电压及发电机额定值，右图在对应绕组端口标出设备额定值，不能将同一位置的两类数值混为实际运行电压。$T_1$ 的三个相交圆表示三绕组变压器，三个绕组对应发电机侧、$110~\mathrm{kV}$ 电网和 $35~\mathrm{kV}$ 电网；图中交叠不表示绕组直接电气相连。末端电动机的 $0.38~\mathrm{kV}$ 仍是原稿按简化条件取的近似值。}
+
+\examplesubheading{发电机与直接相连的变压器}
+
+图中发电机处标注的 $13.8~\mathrm{kV}$ 已是发电机额定电压，已经包含原稿所说的相对于系统额定电压的 $5\%$ 提高，不需要再乘一次。$T_1$ 的低压侧与发电机直接相接，因此
+\begin{equation}
+  U_{GN}=U_{T_1,\mathrm{LV},N}=13.8~\mathrm{kV}.
+\end{equation}
+根据原图的系统电压等级及设备注记，$T_1$ 的其余两绕组额定电压分别为
+\begin{align}
+  U_{T_1,\mathrm{HV},N} & =121~\mathrm{kV},  \\
+  U_{T_1,\mathrm{MV},N} & =38.5~\mathrm{kV}.
+\end{align}
+$T_2$ 与 $T_3$ 的绕组额定电压分别为
+\begin{align}
+  U_{T_2,1N}/U_{T_2,2N} & =35~\mathrm{kV}/11~\mathrm{kV},  \\
+  U_{T_3,1N}/U_{T_3,2N} & =10~\mathrm{kV}/0.4~\mathrm{kV}.
+\end{align}
+
+\examplesubheading{电动机额定电压}
+
+电动机直接接在 $T_3$ 的二次侧。原稿认为图中 $T_3$ 出口的 $0.4~\mathrm{kV}$ 已包含高于用电设备额定电压 $5\%$ 的部分，因此电动机额定电压取为
+\begin{equation}
+  U_{MN}=\frac{0.4~\mathrm{kV}}{1.05}
+  \approx0.38~\mathrm{kV}=380~\mathrm{V}.
+\end{equation}
+
+\reviewnote{这里需区分图中的 $0.4~\mathrm{kV}$ 究竟是系统额定电压，还是变压器二次绕组额定电压。只有按原稿所采用的直接供电及 $5\%$ 简化条件，才能作上述反推；商不能精确写成 $0.38~\mathrm{kV}$，这里保留约等号。图中“三绕组变压器”的三个绕组，也不能简单套用前例“二次侧”的唯一编号。}
+
+\section{电力系统的接线方式}
+
+原稿参考教材 P5，区分地理接线图与电气接线图。
+
+从供电备用角度，可区分无备用接线与有备用接线。无备用接线多为放射式，结构简单、经济，但供电可靠性相对较低；有备用接线的方式较多，各有优劣。
+
+% 手稿 4：MsgID=7375675206180239227，文件修改时间 2026-10-07 19:24:25.624。
+从网络结构和运行方式看，还可区分开式与闭式。原稿提示，应结合供电路径判断备用关系，并记有“闭式设计，开式运行”。
+
+\reviewnote{原稿关于“闭式一定有备用、开式不一定……”的文字有划改，旁边关于供电方向或供电路径的提问也不够清晰，暂保留可确认内容。应区分网络的设计结构、开关的运行状态和实际备用供电能力，后续核对教材对开式、闭式及备用的定义。}
+
+\section{课程体系}
+
+\subsection{分析工具与元件模型}
+
+分析工具包括电路分析和物理概念。通过等值电路等方式建立发电机、变压器、线路和负荷的模型。
+
+\subsection{分析层次}
+
+原稿将分析内容概括为以下层次。
+
+\begin{itemize}
+  \item 稳态：研究运行状态，涉及频率 $f$、电压 $V$、有功功率 $P$、无功功率 $Q$ 等。
+  \item 电磁暂态：分析、计算故障，由稳态分析扩展到暂态和次暂态分析。
+  \item 机电暂态：结合机械与电磁过程，研究同步及稳定性。
+\end{itemize}
+
+% 原图 1-H；原图 1-F、1-G 属于用户暂时删除的中性点部分，本次不恢复。
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[
+      every node/.style={font=\small},
+      toolbox/.style={
+          align=center, draw, fill=gray!30,
+          text width=2.3cm, minimum height=1.2cm
+        },
+      modelbox/.style={
+          align=center, draw, fill=gray!30,
+          text width=2.3cm, minimum height=0.72cm
+        },
+      analysisbox/.style={
+          align=center, draw, fill=gray!30,
+          text width=4.8cm, minimum height=1.12cm
+        }
+    ]
+    \node[font=\small\bfseries] at (1.30,1.20) {分析工具};
+    \node[font=\small\bfseries] at (5.40,1.20) {元件模型};
+    \node[font=\small\bfseries] at (10.20,1.20) {分析层次};
+    \node[toolbox] (tools) at (1.30,-1.575) {电路分析\\物理概念};
+    \node[modelbox] (generator) at (5.40,0) {发电机};
+    \node[modelbox] (transformer) at (5.40,-1.05) {变压器};
+    \node[modelbox] (line) at (5.40,-2.10) {线路};
+    \node[modelbox] (load) at (5.40,-3.15) {负荷};
+    \node[analysisbox] (steady) at (10.20,0)
+    {稳态\\运行状态：$f$、$V$、$P$、$Q$ 等};
+    \node[analysisbox] (electromagnetic) at (10.20,-1.575)
+    {电磁暂态\\故障分析与计算：暂态、次暂态};
+    \node[analysisbox] (electromechanical) at (10.20,-3.15)
+    {机电暂态\\机械与电磁过程：同步、稳定性};
+    \draw[notesline] (tools.east) -- (3.20,-1.575);
+    \draw[notesline] (3.20,0) -- (3.20,-3.15);
+    \node[align=center] at (3.20,0.75) {建立\\等值电路};
+    \foreach \name in {generator,transformer,line,load}
+    \draw[notesflow] (3.20,0 |- \name.west) -- (\name.west);
+    \draw[notesline] (7.10,0) -- (7.10,-3.15);
+    \foreach \name in {generator,transformer,line,load}
+    \draw[notesline] (\name.east) -- (7.10,0 |- \name.east);
+    \foreach \name in {steady,electromagnetic,electromechanical}
+    \draw[notesflow] (7.10,0 |- \name.west) -- (\name.west);
+  \end{tikzpicture}
+  \caption{电力系统分析的工具、元件模型与分析层次}
+\end{figure}
+
+\reviewnote{运行状态变量旁另有一个划改符号，疑似角度记号，暂不确定为 $\delta$，故未加入本图。此处原稿使用电压记号 $V$，前文使用 $U$，后续统一记号时再处理。“稳态、暂态、次暂态”在此表示分析层次的扩展，不能直接当作故障后随时间演变的先后顺序。课程体系图也不表示电磁与机电过程完全独立。}
 
 \end{document}
