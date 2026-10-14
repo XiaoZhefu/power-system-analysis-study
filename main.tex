@@ -1536,4 +1536,246 @@ $T_2$ 与 $T_3$ 的绕组额定电压分别为
 
 \reviewnote{原稿只给出恒功率、恒阻抗以及“实际负荷具有随机性和动态特性”的提纲，未给出 ZIP 模型比例、频率系数或动态方程，因此本稿不自行补入具体参数。原稿页码只写“下册 P”而未填写数字，建议后续查到何仰赞第四版下册的确切页码后补全。恒功率模型的适用条件也应结合潮流计算的电压范围核对。}
 
+% 原始手写笔记：MsgID 9072798899728588932，文件时间 2026-10-14 20:49:23。
+\chapter{标幺制与标幺值}
+
+\section{标幺值的基本概念}
+
+某物理量的标幺值，等于它的有名值与同单位基准值之比，即
+\begin{equation}
+  x^*=\frac{x}{x_B}.
+\end{equation}
+标幺值没有量纲。采用标幺制后，各物理量的数量级较为集中，便于计算和比较；若各电压等级的基准值选择恰当，还可以简化变压器两侧参数的折算。
+
+\subsection{基准值的选择}
+
+在 $S$、$U$、$I$、$Z$ 四个量中，通常选取基准容量 $S_B$ 和基准电压 $U_B$，再由二者确定基准电流 $I_B$ 和基准阻抗 $Z_B$。
+
+对单相系统，有
+\begin{align}
+  I_B & =\frac{S_B}{U_B}, \\
+  Z_B & =\frac{U_B}{I_B}=\frac{U_B^2}{S_B}.
+\end{align}
+对对称三相系统，若 $S_B$ 取三相容量、$U_B$ 取线电压，则
+\begin{align}
+  I_B & =\frac{S_B}{\sqrt{3}U_B}, \\
+  Z_B & =\frac{U_B^2}{S_B}.
+\end{align}
+因此三相系统仍可直接使用 $Z_B=U_B^2/S_B$，不需要在该式中另加 $\sqrt{3}$。
+
+\subsection{常用物理量的标幺值}
+
+电压、电流、复功率和阻抗的标幺值分别为
+\begin{align}
+  U^* & =\frac{U}{U_B}, \\
+  I^* & =\frac{I}{I_B}, \\
+  \dot S^* & =\frac{\dot S}{S_B}
+  =\frac{P}{S_B}+\mathrm{j}\frac{Q}{S_B}
+  =P^*+\mathrm{j}Q^*, \\
+  Z^* & =\frac{Z}{Z_B}
+  =\frac{R}{Z_B}+\mathrm{j}\frac{X}{Z_B}
+  =R^*+\mathrm{j}X^*.
+\end{align}
+
+\reviewnote{原稿旁注“书 P32、P33”。“优点”中的第 1、3 条有部分字迹不清，现根据上下文整理为“便于计算比较”和“简化变压器两侧折算”。三相基准公式不依赖负荷采用 Y 形还是 $\Delta$ 形，但前提是 $S_B$ 为三相容量、$U_B$ 为线电压；实际变压器接线所造成的相移和线、相电压关系仍需单独处理。NPTEL 的标幺制材料同样采用全系统统一的三相容量基准，并使不同电压区的电压基准随变压器变比改变：\href{https://archive.nptel.ac.in/content/storage2/courses/108104051/chapter_1/1_20.html}{Per Unit Representation, NPTEL}。}
+
+\subsection{基准值改变时的换算}
+
+若某阻抗在旧基准下的标幺值已知，可先还原为有名值，再除以新基准阻抗：
+\begin{equation}
+  Z_{\mathrm{old}}^*
+  \longrightarrow
+  Z=Z_{\mathrm{old}}^*Z_{B,\mathrm{old}}
+  \longrightarrow
+  Z_{\mathrm{new}}^*=\frac{Z}{Z_{B,\mathrm{new}}}.
+\end{equation}
+由此得到
+\begin{equation}
+  Z_{\mathrm{new}}^*
+  =Z_{\mathrm{old}}^*
+  \frac{S_{B,\mathrm{new}}}{S_{B,\mathrm{old}}}
+  \left(\frac{U_{B,\mathrm{old}}}{U_{B,\mathrm{new}}}\right)^2.
+\end{equation}
+
+\reviewnote{原稿只画出了“旧基准标幺值 $\rightarrow$ 有名值 $\rightarrow$ 新基准值 $\rightarrow$ 新标幺值”的换算链，未完整写出最后的合并公式；上式由该换算链和 $Z_B=U_B^2/S_B$ 直接整理得到。使用时应确认新、旧电压基准对应同一电压侧。}
+
+\section{多电压等级网络基准值的逐级归算}
+
+多电压等级网络中，通常在全网选取同一个基准容量 $S_B$，并在某一电压区先选定基准电压，再按照相邻变压器的额定变比逐级确定其他电压区的基准电压。
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[every node/.style={font=\small}]
+    \pic at (0,0) {notesbusbar};
+    \pic at (1.75,0) {notestwowinding};
+    \pic at (3.50,0) {notesbusbar};
+    \pic at (5.55,0) {notestwowinding};
+    \pic at (7.40,0) {notesbusbar};
+    \pic at (9.35,0) {notestwowinding};
+    \pic at (11.10,0) {notesbusbar};
+    \draw[notesline] (0,0) -- (1.21,0);
+    \draw[notesline] (2.29,0) -- (3.50,0) -- (5.01,0);
+    \draw[notesline] (6.09,0) -- (7.40,0) -- (8.81,0);
+    \draw[notesline] (9.89,0) -- (11.10,0) -- (12.00,0);
+    \draw[notesflow] (11.10,0) -- (12.00,0);
+    \node[above] at (0,0.48) {$U_{B\mathrm{I}}$};
+    \node[above] at (3.50,0.48) {$U_{B\mathrm{II}}$};
+    \node[above] at (7.40,0.48) {$U_{B\mathrm{III}}$};
+    \node[above] at (11.10,0.48) {$U_{B\mathrm{IV}}$};
+    \node[above] at (1.75,0.48) {$T_1$};
+    \node[above] at (5.55,0.48) {$T_2$};
+    \node[above] at (9.35,0.48) {$T_3$};
+    \node[below,align=center] at (1.75,-0.48) {$500/121$\\$\mathrm{kV}$};
+    \node[below,align=center] at (5.55,-0.48) {$110/38.5$\\$\mathrm{kV}$};
+    \node[below,align=center] at (9.35,-0.48) {$35/11$\\$\mathrm{kV}$};
+    \node[below] at (0,-1.05) {$500\,\mathrm{kV}$ 电压区};
+    \node[below] at (3.50,-1.05) {$110\,\mathrm{kV}$ 电压区};
+    \node[below] at (7.40,-1.05) {$35\,\mathrm{kV}$ 电压区};
+    \node[below] at (11.10,-1.05) {$10\,\mathrm{kV}$ 电压区};
+  \end{tikzpicture}
+  \caption{多电压等级网络的基准电压逐级归算示意}
+\end{figure}
+
+设某台变压器两侧额定电压为 $U_{TN1}$、$U_{TN2}$，对应电压区的基准电压为 $U_{B1}$、$U_{B2}$，则其标幺变比为
+\begin{equation}
+  k_T^*
+  =\frac{U_{TN1}/U_{B1}}{U_{TN2}/U_{B2}}.
+\end{equation}
+若希望该变压器在标幺值等值电路中的变比为 $1$，应令
+\begin{equation}
+  \frac{U_{B1}}{U_{B2}}
+  =\frac{U_{TN1}}{U_{TN2}},
+  \qquad k_T^*=1.
+\end{equation}
+
+在图示例子中，先取
+\begin{equation}
+  U_{B\mathrm{I}}=500\,\mathrm{kV},
+  \qquad
+  U_{B\mathrm{II}}=121\,\mathrm{kV}.
+\end{equation}
+这与 $T_1$ 的额定电压比 $500/121$ 一致。对 $T_2$，令
+\begin{equation}
+  k_{T2}^*
+  =\frac{110/121}{38.5/U_{B\mathrm{III}}}
+  =1,
+\end{equation}
+可得
+\begin{equation}
+  U_{B\mathrm{III}}=42.35\,\mathrm{kV}.
+\end{equation}
+
+% 原始手写笔记：MsgID 2295871068450974394，文件时间 2026-10-14 20:49:15。
+再对 $T_3$ 令
+\begin{equation}
+  k_{T3}^*
+  =\frac{35/42.35}{11/U_{B\mathrm{IV}}}
+  =1,
+\end{equation}
+得到
+\begin{equation}
+  U_{B\mathrm{IV}}=13.31\,\mathrm{kV}.
+\end{equation}
+
+\reviewnote{图中四个电压区下方的 $500$、$110$、$35$、$10\,\mathrm{kV}$ 表示系统电压等级，$U_{B\mathrm{I}}\sim U_{B\mathrm{IV}}$ 是计算采用的基准电压，两者不必数值相等。原稿在全网基准容量附近有一处疑似“400 MVA”的字迹，但该数值没有参与本页电压递推，暂不作为确定条件。$42.35\,\mathrm{kV}$ 和 $13.31\,\mathrm{kV}$ 已按图中三台变压器的额定电压比复算。}
+
+\section{逐级归算法的问题与平均额定电压法}
+
+\subsection{环网中的路径不一致}
+
+在辐射形网络中，从已知电压区沿唯一的变压器链逐级归算即可；在环网中，从不同路径归算到同一电压区时，若变压器额定电压比不完全协调，就可能得到不同的基准电压。
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[every node/.style={font=\small}]
+    \draw[notesline] (0,0) circle[radius=0.38];
+    \node at (0,0) {$\mathrm{G}$};
+    \pic at (1.30,0) {notesbusbar};
+    \pic at (3.00,1.55) {notestwowinding};
+    \pic at (6.00,1.55) {notesbusbar};
+    \pic at (8.55,1.55) {notestwowinding};
+    \pic at (10.35,0) {notesbusbar};
+    \pic at (3.00,-1.55) {notestwowinding};
+    \draw[notesline] (0.38,0) -- (1.30,0);
+    \draw[notesline] (1.30,0) -- (1.30,1.55) -- (2.46,1.55);
+    \draw[notesline] (3.54,1.55) -- (4.65,1.55);
+    \draw[notesline,fill=white] (4.65,1.28) rectangle (5.45,1.82);
+    \node at (5.05,1.55) {$X$};
+    \draw[notesline] (5.45,1.55) -- (6.00,1.55) -- (8.01,1.55);
+    \draw[notesline] (9.09,1.55) -- (10.35,1.55) -- (10.35,0);
+    \draw[notesline] (1.30,0) -- (1.30,-1.55) -- (2.46,-1.55);
+    \draw[notesline] (3.54,-1.55) -- (10.35,-1.55) -- (10.35,0);
+    \node[above] at (1.30,1.90) {$U_{B1}$};
+    \node[above] at (6.00,1.90) {$U_{B2}$};
+    \node[right] at (10.35,0.30) {$U_{B3}$};
+    \node[above] at (3.00,1.95) {$T_1$};
+    \node[above] at (8.55,1.95) {$T_2$};
+    \node[below] at (3.00,-1.95) {$T_3$};
+    \node[below] at (3.00,1.05) {$10.5/242\,\mathrm{kV}$};
+    \node[below] at (8.55,1.05) {$220/121\,\mathrm{kV}$};
+    \node[above] at (3.00,-1.05) {$10.5/121\,\mathrm{kV}$};
+  \end{tikzpicture}
+  \caption{不同归算路径造成基准电压不一致的环网示例}
+\end{figure}
+
+已知
+\begin{equation}
+  U_{B1}=10.5\,\mathrm{kV},
+\end{equation}
+沿上方路径依次令 $T_1$、$T_2$ 的标幺变比为 $1$，有
+\begin{align}
+  k_{T1}^*
+  & =\frac{10.5/10.5}{242/U_{B2}}=1,
+  & U_{B2} & =242\,\mathrm{kV}, \\
+  k_{T2}^*
+  & =\frac{220/242}{121/U_{B3}}=1,
+  & U_{B3} & =133.1\,\mathrm{kV}.
+\end{align}
+若改沿下方的 $T_3$ 归算，则
+\begin{equation}
+  k_{T3}^*
+  =\frac{10.5/10.5}{121/U_{B3}}=1
+  \quad\Longrightarrow\quad
+  U_{B3}=121\,\mathrm{kV}.
+\end{equation}
+两条路径分别得到 $133.1\,\mathrm{kV}$ 和 $121\,\mathrm{kV}$，说明无法同时通过基准电压选择使三台变压器的标幺变比都等于 $1$。等价地，沿环路的额定变比乘积为
+\begin{equation}
+  \frac{10.5}{242}
+  \frac{220}{121}
+  \frac{121}{10.5}
+  =\frac{220}{242}\ne1.
+\end{equation}
+
+\reviewnote{原图中 $T_1$ 的高压侧额定值可辨为 $242\,\mathrm{kV}$，$T_2$ 为 $220/121\,\mathrm{kV}$，$T_3$ 为 $10.5/121\,\mathrm{kV}$。课堂旁注指出同一电压等级出现 $242$ 与 $220\,\mathrm{kV}$ 两种额定值，这是两条归算路径不一致的直接原因。环路乘积式为根据原图数据补写的校核式。}
+
+\subsection{平均额定电压近似}
+
+短路电流的近似计算中，可把各电压等级的基准电压取为教材给出的平均额定电压。原稿列出的对应关系为
+\begin{equation}
+  \begin{array}{c|rrrrrr}
+    U_N/\mathrm{kV}
+      & 10 & 35 & 110 & 220 & 500 & 1000 \\
+    \hline
+    U_{\mathrm{av}}/\mathrm{kV}
+      & 10.5 & 37 & 115 & 230 & 525 & 1050
+  \end{array}.
+\end{equation}
+这些数值可近似理解为在系统额定电压基础上提高约 $5\%$，但应以课程所用教材的表格为准。
+
+\reviewnote{原稿旁注“P37”，并提出“实际上误差有多大”的问题，但没有给出答案。平均额定电压法是面向特定电压等级和近似计算的约定，表中的 $37/35$、$115/110$ 等比例并不严格等于 $1.05$；不应把“统一乘 $1.05$”当作精确公式。}
+
+\subsection{保留非单位标幺变比}
+
+若既希望使用标幺值，又需要保留实际变比差异，则不强求每台变压器的 $k_T^*$ 都等于 $1$，而是按
+\begin{equation}
+  k_T^*
+  =\frac{U_{TN1}/U_{B1}}{U_{TN2}/U_{B2}}
+  =\frac{k_T}{k_B},
+  \qquad
+  k_B=\frac{U_{B1}}{U_{B2}},
+\end{equation}
+计算并保留其非单位标幺变比。随后可采用前文的变压器 $\Pi$ 型等值电路，将该变比直接纳入节点导纳模型。这种处理更适合需要反映非标准变比和分接头的潮流计算。
+
+\reviewnote{原稿最后一种方法的名称有涂改，无法可靠辨认为“归一法”或其他术语，故本稿按可确认的物理含义命名为“保留非单位标幺变比”。原稿的处理链可辨为“求标幺值 $\rightarrow$ 归算至某侧 $\rightarrow$ 标幺计算”，并注明 $\Pi$ 型等值电路多用于潮流计算。具体采用有名变比还是标幺变比时，必须同时写清基准电压比 $k_B$，避免把 $k_T$ 与 $k_T^*$ 混用。}
+
 \end{document}
