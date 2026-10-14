@@ -80,35 +80,9 @@
 }
 \ctikzset{
   bipoles/thickness=1,
+  inductor=american,
   quadpoles/thickness=1,
   tripoles/thickness=1
-}
-\tikzset{
-  notesline/.style={line width=0.65pt},
-  notesbus/.style={line width=1pt},
-  notesflow/.style={-{Latex[length=1.8mm]}, line width=0.65pt},
-  pics/notesgenerator/.style={code={
-    \draw[notesline] (0,0) circle[radius=0.38];
-    \node at (0,0.10) {$G$};
-    \node at (0,-0.14) {$\sim$};
-  }},
-  pics/notesmotor/.style={code={
-    \draw[notesline] (0,0) circle[radius=0.38];
-    \node at (0,0.10) {$M$};
-    \node at (0,-0.14) {$\sim$};
-  }},
-  pics/notestwowinding/.style={code={
-    \draw[notesline] (-0.22,0) circle[radius=0.32];
-    \draw[notesline] (0.22,0) circle[radius=0.32];
-  }},
-  pics/notesthreewinding/.style={code={
-    \draw[notesline] (-0.22,0) circle[radius=0.32];
-    \draw[notesline] (0.22,0) circle[radius=0.32];
-    \draw[notesline] (0,-0.36) circle[radius=0.32];
-  }},
-  pics/notesbusbar/.style={code={
-    \draw[notesbus] (0,-0.36) -- (0,0.36);
-  }}
 }
 \hypersetup{pdftitle={电力系统分析笔记}}
 \linespread{1.3}
@@ -148,6 +122,25 @@
       \hspace{0.5em}#1%
     }%
   \fi
+}
+\newcommand{\notescircuitfont}{\fontsize{9}{10.8}\selectfont}
+\newenvironment{notescircuit}[1][]{%
+  \begingroup
+  \notescircuitfont
+  \ctikzset{
+    bipoles/length=2.276em,
+    transistors/scale=1.5
+  }
+  \begin{circuitikz}[
+    every node/.append style={font=\notescircuitfont},
+    font=\notescircuitfont,
+    line width=0.8pt,
+    transform shape=false,
+    #1
+  ]
+}{%
+  \end{circuitikz}
+  \endgroup
 }
 \newcommand{\reviewnote}[1]{%
   \par\smallskip
@@ -319,12 +312,44 @@
 \AtBeginDocument{\notes_check_definitions:}
 \ExplSyntaxOff
 
+\tikzset{
+  notesline/.style={line width=0.65pt},
+  notesbus/.style={line width=1pt},
+  notesflow/.style={-{Latex[length=1.8mm]}, line width=0.65pt},
+  pics/notesgenerator/.style={code={
+    \draw[notesline] (0,0) circle[radius=0.38];
+    \node at (0,0.10) {$G$};
+    \node at (0,-0.14) {$\sim$};
+  }},
+  pics/notesmotor/.style={code={
+    \draw[notesline] (0,0) circle[radius=0.38];
+    \node at (0,0.10) {$M$};
+    \node at (0,-0.14) {$\sim$};
+  }},
+  pics/notestwowinding/.style={code={
+    \draw[notesline] (-0.22,0) circle[radius=0.32];
+    \draw[notesline] (0.22,0) circle[radius=0.32];
+  }},
+  pics/notesthreewinding/.style={code={
+    \draw[notesline] (-0.22,0) circle[radius=0.32];
+    \draw[notesline] (0.22,0) circle[radius=0.32];
+    \draw[notesline] (0,-0.36) circle[radius=0.32];
+  }},
+  pics/notesbusbar/.style={code={
+    \draw[notesbus] (0,-0.36) -- (0,0.36);
+  }}
+}
+
 \input{equations/equation_header}
 \input{equations/equation_ch01}
 \input{figures/figure_header}
 \input{figures/figure_ch01}
 \input{tables/table_header}
 \input{tables/table_ch01}
+
+
+
+
 
 % ---------- 正文 ----------
 
@@ -823,5 +848,692 @@ $T_2$ 与 $T_3$ 的绕组额定电压分别为
 \end{figure}
 
 \reviewnote{运行状态变量旁另有一个划改符号，疑似角度记号，暂不确定为 $\delta$，故未加入本图。此处原稿使用电压记号 $V$，前文使用 $U$，后续统一记号时再处理。“稳态、暂态、次暂态”在此表示分析层次的扩展，不能直接当作故障后随时间演变的先后顺序。课程体系图也不表示电磁与机电过程完全独立。}
+
+% 原始手写笔记：MsgID 6861819404153374871，文件时间 2026-10-13 15:41:00。
+\chapter{电力系统元件建模}
+
+\section{元件建模的任务与思路}
+
+元件建模的目标是建立能够描述元件外部特性的等值电路，并在准确性与实用性之间取得平衡。基本思路是从元件的物理现象出发，找出对端口特性起主要作用的过程，再用适当的电路元件刻画这些过程。
+
+\reviewnote{本节标题和两条主旨均可辨认；原稿中“描述”之后有一处疑似补写词，暂按“刻画本质”整理。后续使用模型时，应同时注明参考方向、参考侧、相量定义和所采用的近似。}
+
+\section{发电机的建模}
+
+\subsection{定子端口内部模型}
+
+同步发电机空载时，励磁电流 $I_f$ 产生转子磁动势 $F_f$，进而建立主磁通 $\Phi_0$，并在定子绕组中感应空载电势 $E_0$。其因果链可写为
+\begin{equation}
+  I_f \longrightarrow F_f \longrightarrow \Phi_0 \longrightarrow E_0 .
+\end{equation}
+负载后，定子电流 $I_a$ 还会产生电枢反应磁通 $\Phi_a$，从而改变气隙中的合成磁场。
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[
+    every node/.style={font=\small},
+    flux/.style={-{Latex[length=1.8mm]},line width=0.65pt},
+    winding/.style={line width=0.8pt}
+    ]
+    \draw[notesline] (0,0) circle (2.15);
+    \draw[notesline,fill=gray!30] (-0.63,-1.12) rectangle (0.63,1.12);
+    \draw[notesline] (-0.63,0) -- (0.63,0);
+    \node[font=\small\bfseries] at (0,0.55) {N};
+    \node[font=\small\bfseries] at (0,-0.55) {S};
+    \draw[winding] (-0.82,0.62) arc[start angle=115,end angle=245,radius=0.55];
+    \draw[winding] (0.82,-0.62) arc[start angle=-65,end angle=65,radius=0.55];
+    \draw[flux] (0.15,1.30) .. controls (1.10,1.08) and (1.12,-1.08) .. (0.15,-1.30);
+    \draw[flux] (-0.15,-1.30) .. controls (-1.10,-1.08) and (-1.12,1.08) .. (-0.15,1.30);
+    \draw[notesline] (-1.60,1.22) arc[start angle=140,end angle=35,radius=1.15];
+    \draw[notesflow] (0.15,2.16) arc[start angle=90,end angle=25,radius=0.62];
+    \node at (0.90,2.18) {$\omega_0$};
+    \node[align=center] at (3.20,0.75) {定子三相绕组};
+    \draw[notesflow] (2.62,0.62) -- (1.72,0.38);
+    \node[align=center] at (3.10,-0.28) {转子励磁绕组};
+    \draw[notesflow] (2.35,-0.33) -- (0.66,-0.25);
+    \node at (-3.15,0.40) {$+$};
+    \node at (-3.15,-0.40) {$-$};
+    \node at (-3.52,0) {$U_f$};
+    \draw[notesline] (-3.02,0.36) -- (-2.20,0.36) -- (-2.20,0.78);
+    \draw[notesline] (-3.02,-0.36) -- (-2.20,-0.36) -- (-2.20,-0.78);
+    \draw[notesflow] (-2.58,0.36) -- (-2.28,0.36);
+    \node at (-2.48,0.68) {$I_f$};
+    \node at (1.42,-1.57) {$\Phi_0$};
+  \end{tikzpicture}
+  \caption{同步发电机励磁与主磁通的示意图}
+\end{figure}
+
+\reviewnote{原图为课堂示意图，定子槽形、绕组空间分布和磁通路径均未给出精确结构；上图只保留可确认的转子磁极、直流励磁、旋转方向和主磁通关系。若用于电机理论推导，应对照教材核对极性、绕组轴线和正方向。}
+
+\subsection{每相等值电路与相量关系}
+
+将电枢反应电抗 $X_a$、漏抗 $X_\sigma$ 与定子电阻 $R$ 串联，可得每相稳态等值电路。同步电抗为
+\begin{equation}
+  X_s=X_a+X_\sigma .
+\end{equation}
+
+\begin{figure}[H]
+  \centering
+  \begin{notescircuit}
+    \draw (0,0) to[sV,l_={$\dot E_0$}] (0,2)
+    to[L,l={$\mathrm{j}X_a$}] (2.2,2)
+    to[L,l={$\mathrm{j}X_\sigma$}] (4.4,2)
+    to[R,l={$R$}] (6.4,2) -- (7.2,2);
+    \draw (0,0) -- (7.2,0);
+    \draw[notesflow] (5.65,2.42) -- (6.50,2.42) node[midway,above] {$\dot I_a$};
+    \draw[notesline] (7.2,0) -- (7.2,2);
+    \node[right] at (7.2,1.52) {$+$};
+    \node[right] at (7.2,0.48) {$-$};
+    \node[right] at (7.52,1) {$\dot U$};
+    \draw[notesline] (1.42,-0.22) -- (1.42,-0.42) -- (4.98,-0.42) -- (4.98,-0.22);
+    \node[below] at (3.20,-0.42) {$X_a+X_\sigma=X_s$};
+  \end{notescircuit}
+  \caption{同步发电机的每相稳态等值电路}
+\end{figure}
+
+按图示发电机电流正方向，有
+\begin{equation}
+  \dot E_0=\dot U+(R+\mathrm{j}X_s)\dot I_a .
+\end{equation}
+忽略定子电阻时，相量关系近似为
+\begin{equation}
+  \dot E_0\approx \dot U+\mathrm{j}X_s\dot I_a .
+\end{equation}
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[>=Latex,every node/.style={font=\small}]
+    \coordinate (O) at (0,0);
+    \coordinate (I) at (5.2,0);
+    \coordinate (U) at (3.65,1.80);
+    \coordinate (R) at (4.75,1.80);
+    \coordinate (E) at (4.75,3.48);
+    \draw[notesflow] (O) -- (I) node[below right] {$\dot I_a$};
+    \draw[notesflow] (O) -- (U) node[above left] {$\dot U$};
+    \draw[notesflow] (U) -- (R) node[midway,below] {$R\dot I_a$};
+    \draw[notesflow] (R) -- (E) node[midway,right] {$\mathrm{j}X_s\dot I_a$};
+    \draw[notesflow] (O) -- (E) node[above right] {$\dot E_0$};
+    \draw[notesline] (1.05,0) arc[start angle=0,end angle=26.3,radius=1.05];
+    \node at (1.30,0.27) {$\varphi$};
+    \draw[notesline] (1.63,0.80) arc[start angle=26.3,end angle=36.2,radius=1.82];
+    \node at (1.72,1.23) {$\theta$};
+    \draw[notesline] (0.70,0) arc[start angle=0,end angle=36.2,radius=0.70];
+    \node at (0.89,0.47) {$\psi$};
+  \end{tikzpicture}
+  \caption{同步发电机相量关系示意图}
+\end{figure}
+
+图中的三个角满足
+\begin{equation}
+  \psi=\varphi+\theta .
+\end{equation}
+原稿给出的功角特性写作
+\begin{equation}
+  P_e=\frac{E_0U}{X_s}\sin\delta .
+\end{equation}
+
+\reviewnote{原稿旁注“书 P42 起”。相量图把 $\theta$ 标在 $\dot U$ 与 $\dot E_0$ 之间，而功率式使用 $\delta$；两者是否指同一个功角需要按课程记号统一。上式是在圆筒转子、忽略电阻的每相模型下得到的每相电磁功率；若 $E_0$、$U$ 取相电压，三相总功率还需乘以 $3$。若采用线电压或凸极机模型，表达式会相应改变。}
+
+% 原始手写笔记：MsgID 1196678885205918328，文件时间 2026-10-13 15:41:09。
+\section{变压器的建模}
+
+\subsection{双绕组变压器的等值参数}
+
+双绕组变压器的串联支路由电阻 $R_T=R_1+R'_2$ 和漏抗 $X_T=X_1+X'_2$ 构成，主要反映与电流有关的铜耗和漏磁效应；并联支路由电导 $G_T$ 和电纳 $-\mathrm{j}B_T$ 构成，主要反映与电压有关的铁耗和励磁无功。理想变压器用变比 $k_T$ 表示。
+
+\begin{figure}[H]
+  \centering
+  \begin{notescircuit}
+    \draw (0,0) -- (0,3.0);
+    \draw (0,3.0) to[R,l={$R_T$}] (2.2,3.0)
+    to[L,l={$\mathrm{j}X_T$}] (4.4,3.0) -- (5.0,3.0);
+    \draw (0,0) -- (5.0,0);
+    \draw (0.55,3.0) -- (0.55,2.55);
+    \draw (0.55,2.55) to[R,l_={$1/G_T$}] (0.55,0.45) -- (0.55,0);
+    \draw (1.55,3.0) -- (1.55,2.55);
+    \draw (1.55,2.55) to[L,l_={$-\mathrm{j}/B_T$}] (1.55,0.45) -- (1.55,0);
+    \draw[notesline] (5.28,1.55) circle (0.55);
+    \draw[notesline] (6.08,1.55) circle (0.55);
+    \draw[notesline] (4.85,3.0) -- (5.28,2.10);
+    \draw[notesline] (4.85,0) -- (5.28,1.00);
+    \draw[notesline] (6.08,2.10) -- (6.50,3.0) -- (7.25,3.0);
+    \draw[notesline] (6.08,1.00) -- (6.50,0) -- (7.25,0);
+    \node at (5.68,0.62) {$k_T$};
+    \draw[notesflow] (-0.15,3.42) -- (0.72,3.42) node[midway,above] {$\dot I_1$};
+    \draw[notesflow] (6.48,3.42) -- (7.20,3.42) node[midway,above] {$\dot I_2$};
+    \node[left] at (0,2.45) {$+$};
+    \node[left] at (0,0.55) {$-$};
+    \node[left] at (-0.28,1.50) {$\dot U_1$};
+    \node[right] at (7.25,2.45) {$+$};
+    \node[right] at (7.25,0.55) {$-$};
+    \node[right] at (7.52,1.50) {$\dot U_2$};
+  \end{notescircuit}
+  \caption{双绕组变压器的每相等值电路}
+\end{figure}
+
+本节参数均应先折算到同一参考侧。铭牌容量 $S_N$ 为三相容量，铭牌电压 $U_N$ 为线电压；计算采用对称三相的每相 Y 形等值，因此
+\begin{equation}
+  I_N=\frac{S_N}{\sqrt{3}U_N} .
+\end{equation}
+
+\subsection{短路试验}
+
+短路试验通常将一侧短路，从另一侧施加较低电压，使电流达到额定值。由于所加电压较低，可近似忽略励磁支路。短路电压百分数为
+\begin{equation}
+  U_s\%=\frac{U_s}{U_N}\times100\% .
+\end{equation}
+
+\begin{figure}[H]
+  \centering
+  \begin{notescircuit}
+    \draw (0,0) to[sV,l_={$\dot U_s$}] (0,2.4)
+    to[R,l={$R_T$}] (2.3,2.4)
+    to[L,l={$\mathrm{j}X_T$}] (4.6,2.4) -- (5.3,2.4) -- (5.3,0) -- (0,0);
+    \draw[notesflow] (0.65,2.82) -- (1.55,2.82) node[midway,above] {$I_N$};
+  \end{notescircuit}
+  \caption{变压器短路试验的近似等值电路}
+\end{figure}
+
+额定电流下的短路损耗主要是铜耗，故
+\begin{align}
+  \Delta P_s & =3I_N^2R_T,                     \\
+  R_T        & =\frac{\Delta P_sU_N^2}{S_N^2}.
+\end{align}
+在 $R_T\ll X_T$ 的近似下，有
+\begin{align}
+  \frac{U_s\%}{100}U_N & \approx\sqrt{3}I_NX_T,                     \\
+  X_T                  & \approx\frac{U_s\%}{100}\frac{U_N^2}{S_N}.
+\end{align}
+
+\subsection{空载试验}
+
+空载试验通常在低压侧加额定电压，并将另一侧开路。忽略串联支路压降时，测得的空载损耗 $\Delta P_0$ 近似为铁耗。
+
+\begin{figure}[H]
+  \centering
+  \begin{notescircuit}
+    \draw (0,0) to[sV,l_={$\dot U_N$}] (0,2.8) -- (2.8,2.8);
+    \draw (0,0) -- (2.8,0);
+    \draw (1.05,2.8) to[R,l_={$1/G_T$}] (1.05,0);
+    \draw (2.25,2.8) to[L,l_={$-\mathrm{j}/B_T$}] (2.25,0);
+    \draw[notesflow] (0.15,3.22) -- (0.88,3.22) node[midway,above] {$\dot I_0$};
+  \end{notescircuit}
+  \caption{变压器空载试验的近似等值电路}
+\end{figure}
+
+空载电流百分数定义为
+\begin{equation}
+  I_0\%=\frac{I_0}{I_N}\times100\% .
+\end{equation}
+由有功分量可得
+\begin{align}
+  \Delta P_0 & =3\left(\frac{U_N}{\sqrt{3}}\right)^2G_T=U_N^2G_T, \\
+  G_T        & =\frac{\Delta P_0}{U_N^2}.
+\end{align}
+若进一步取 $G_T\ll B_T$，则
+\begin{align}
+  \frac{I_0\%}{100}I_N & \approx\frac{U_N}{\sqrt{3}}B_T,            \\
+  B_T                  & \approx\frac{I_0\%}{100}\frac{S_N}{U_N^2}.
+\end{align}
+
+变比可由空载时两侧电压之比求得。这里的 $k_T$ 必须与等值电路所采用的电压定义保持一致。
+
+\reviewnote{原稿旁注“书 P23 起”，并把“电压比不是匝数比”作为提醒。更准确的说法是：理想变压器的相电压比等于匝数比；当两侧接线方式不同，线电压比还包含 $\sqrt{3}$ 倍数和相移。上述参数式默认各量已经折算到同一侧且单位自洽；直接把 kW、kV、MVA 或 kVA 的数值混合代入会引入千倍因子，建议先统一成 W、V、VA，或严格沿用教材给出的单位组合。空载电流 $I_0$ 是励磁支路总电流，$B_T$ 的公式还使用了 $G_T\ll B_T$ 的近似。原稿本页小标题字迹不清，现按内容整理为“短路试验”和“空载试验”。}
+
+% 原始手写笔记：MsgID 3944389042640884105，文件时间 2026-10-13 15:41:12。
+\subsection{三绕组变压器}
+
+三绕组变压器折算到同一参考侧后，可用三个漏阻抗构成星形等值电路；励磁支路仍接在参考侧端口。
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[every node/.style={font=\small}]
+    \coordinate (J) at (4.6,1.6);
+    \draw[notesline] (-1.25,1.6) -- (0.8,1.6);
+    \draw[notesline,fill=white] (0.8,1.35) rectangle (2.0,1.85);
+    \node at (1.4,1.6) {$R_1$};
+    \draw[notesline,fill=white] (2.4,1.35) rectangle (3.6,1.85);
+    \node at (3.0,1.6) {$\mathrm{j}X_1$};
+    \draw[notesline] (2.0,1.6) -- (2.4,1.6) -- (J);
+    \draw[notesline] (J) -- (5.2,3.0);
+    \draw[notesline,fill=white] (5.2,2.75) rectangle (6.4,3.25);
+    \node at (5.8,3.0) {$R_2$};
+    \draw[notesline,fill=white] (6.8,2.75) rectangle (8.0,3.25);
+    \node at (7.4,3.0) {$\mathrm{j}X_2$};
+    \draw[notesline] (6.4,3.0) -- (6.8,3.0) -- (8.35,3.0);
+    \draw[notesline] (J) -- (5.2,0.2);
+    \draw[notesline,fill=white] (5.2,-0.05) rectangle (6.4,0.45);
+    \node at (5.8,0.2) {$R_3$};
+    \draw[notesline,fill=white] (6.8,-0.05) rectangle (8.0,0.45);
+    \node at (7.4,0.2) {$\mathrm{j}X_3$};
+    \draw[notesline] (6.4,0.2) -- (6.8,0.2) -- (8.35,0.2);
+    \draw[notesline] (0,1.6) -- (0,0.65);
+    \draw[notesline,fill=white] (-0.25,-0.55) rectangle (0.25,0.65);
+    \node[left] at (-0.30,0.05) {$1/G_T$};
+    \draw[notesline] (0,-0.55) -- (0,-1.0);
+    \draw[notesline] (-1.25,1.6) -- (-1.25,0.65);
+    \draw[notesline,fill=white] (-1.50,-0.55) rectangle (-1.00,0.65);
+    \node[left] at (-1.55,0.05) {$-\mathrm{j}/B_T$};
+    \draw[notesline] (-1.25,-0.55) -- (-1.25,-1.0) -- (0,-1.0);
+    \node[above] at (-0.62,1.65) {绕组 1};
+    \node[right] at (8.35,3.0) {绕组 2，$k_{12}$};
+    \node[right] at (8.35,0.2) {绕组 3，$k_{13}$};
+    \fill (J) circle (1.3pt);
+  \end{tikzpicture}
+  \caption{三绕组变压器折算到同一侧的星形等值模型}
+\end{figure}
+
+对三个绕组两两进行短路试验，并把测量结果折算到同一容量和电压基准。若三次试验所得成对短路损耗分别为 $\Delta P_{s,12}$、$\Delta P_{s,23}$ 和 $\Delta P_{s,31}$，则
+\begin{align}
+  \Delta P_{s,12} & =\Delta P_{s,1}+\Delta P_{s,2}, \\
+  \Delta P_{s,23} & =\Delta P_{s,2}+\Delta P_{s,3}, \\
+  \Delta P_{s,31} & =\Delta P_{s,3}+\Delta P_{s,1}.
+\end{align}
+因此各绕组的等效短路损耗为
+\begin{align}
+  \Delta P_{s,1} & =\frac{1}{2}
+  \left(\Delta P_{s,12}+\Delta P_{s,31}-\Delta P_{s,23}\right), \\
+  \Delta P_{s,2} & =\frac{1}{2}
+  \left(\Delta P_{s,12}+\Delta P_{s,23}-\Delta P_{s,31}\right), \\
+  \Delta P_{s,3} & =\frac{1}{2}
+  \left(\Delta P_{s,23}+\Delta P_{s,31}-\Delta P_{s,12}\right).
+\end{align}
+在共同基准 $S_B$、参考侧电压 $U_B$ 下，相应电阻可写为
+\begin{equation}
+  R_i=\frac{\Delta P_{s,i}U_B^2}{S_B^2},
+  \qquad i=1,2,3.
+\end{equation}
+
+同理，若三组短路电压百分数已换算到同一容量基准，则
+\begin{align}
+  U_{s,1}\% & =\frac{1}{2}
+  \left(U_{s,12}\%+U_{s,31}\%-U_{s,23}\%\right), \\
+  U_{s,2}\% & =\frac{1}{2}
+  \left(U_{s,12}\%+U_{s,23}\%-U_{s,31}\%\right), \\
+  U_{s,3}\% & =\frac{1}{2}
+  \left(U_{s,23}\%+U_{s,31}\%-U_{s,12}\%\right).
+\end{align}
+忽略电阻对短路电压的影响时，漏抗近似为
+\begin{equation}
+  X_i\approx\frac{U_{s,i}\%}{100}\frac{U_B^2}{S_B},
+  \qquad i=1,2,3.
+\end{equation}
+
+当三个绕组的额定容量不同，短路试验可能受较小容量绕组的额定电流限制。原稿举例为
+\begin{equation}
+  S_1=100,\qquad S_2=50,\qquad S_3=100,
+\end{equation}
+并取 $S_B=100$。若带撇号的损耗是在受限试验容量下测得的值，则损耗按电流平方折算，例如
+\begin{align}
+  \Delta P_{s,12} & =\left(\frac{100}{50}\right)^2\Delta P'_{s,12},  \\
+  \Delta P_{s,23} & =\left(\frac{100}{50}\right)^2\Delta P'_{s,23},  \\
+  \Delta P_{s,31} & =\left(\frac{100}{100}\right)^2\Delta P'_{s,31}.
+\end{align}
+
+\reviewnote{三绕组参数必须先统一容量基准，再做“和差除以二”。短路损耗随试验电流的平方换算，短路电压百分数则随试验电流线性换算；因此原稿“短路电压不用折算”的旁注不能脱离厂家给出的基准直接使用。原稿在 $R_i$ 式旁的千倍因子有划改，$X_i$ 后的单位也疑似误写为导纳单位，现未保留这些不自洽记号。例中容量未写单位，应结合题目铭牌补全。自耦变压器还涉及公共绕组与串联绕组容量，原稿仅提示“看例 2.5”，本稿暂不补写未经核对的折算式。}
+
+% 原始手写笔记：MsgID 3526514577150184672，文件时间 2026-10-13 15:41:20。
+\section{变压器的简化等值模型}
+
+电力系统稳态计算以节点电压和功率为主要变量。由于正常运行时电压变化通常不大，励磁支路消耗的空载有功功率 $\Delta P_0$ 和无功功率 $\Delta Q_0$ 可近似视为常量，并用端口处的恒功率负荷代替励磁导纳。
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[every node/.style={font=\small}]
+    \node[align=center] at (-1.55,1.25) {励磁导纳模型};
+    \draw[notesline] (0,2.20) -- (1.0,2.20);
+    \draw[notesline,fill=white] (1.0,1.95) rectangle (2.25,2.45);
+    \node at (1.625,2.20) {$Z_T$};
+    \draw[notesline] (2.25,2.20) -- (3.15,2.20);
+    \draw[notesline] (0,2.20) -- (0,0.30) -- (3.15,0.30);
+    \draw[notesline,fill=white] (-0.25,0.70) rectangle (0.25,1.75);
+    \node[left] at (-0.30,1.22) {$Y_T$};
+    \draw[notesline] (3.45,1.25) circle (0.52);
+    \draw[notesline] (4.20,1.25) circle (0.52);
+    \draw[notesline] (3.15,2.20) -- (3.45,1.77);
+    \draw[notesline] (3.15,0.30) -- (3.45,0.73);
+    \draw[notesline] (4.20,1.77) -- (4.50,2.20) -- (5.10,2.20);
+    \draw[notesline] (4.20,0.73) -- (4.50,0.30) -- (5.10,0.30);
+    \node at (3.82,0.28) {$k_T$};
+    \node[align=center] at (-1.55,-1.60) {恒功率近似};
+    \draw[notesline] (0,-0.65) -- (1.0,-0.65);
+    \draw[notesline,fill=white] (1.0,-0.90) rectangle (2.25,-0.40);
+    \node at (1.625,-0.65) {$Z_T$};
+    \draw[notesline] (2.25,-0.65) -- (3.15,-0.65);
+    \draw[notesline] (0,-0.65) -- (0,-2.55) -- (3.15,-2.55);
+    \draw[notesflow] (0,-0.65) -- (0,-1.75);
+    \node[left,align=right] at (-0.15,-1.30)
+    {$\Delta\dot S_0=\Delta P_0+\mathrm{j}\Delta Q_0$};
+    \draw[notesline] (3.45,-1.60) circle (0.52);
+    \draw[notesline] (4.20,-1.60) circle (0.52);
+    \draw[notesline] (3.15,-0.65) -- (3.45,-1.08);
+    \draw[notesline] (3.15,-2.55) -- (3.45,-2.12);
+    \draw[notesline] (4.20,-1.08) -- (4.50,-0.65) -- (5.10,-0.65);
+    \draw[notesline] (4.20,-2.12) -- (4.50,-2.55) -- (5.10,-2.55);
+    \node at (3.82,-2.57) {$k_T$};
+  \end{tikzpicture}
+  \caption{用恒功率损耗代替变压器励磁支路}
+\end{figure}
+
+该近似可写为
+\begin{equation}
+  \Delta\dot S_0=\Delta P_0+\mathrm{j}\Delta Q_0\approx\text{常量}.
+\end{equation}
+
+\reviewnote{原稿本节第一条的个别字无法确认，现根据后文只整理为“降低模型复杂度”。把励磁支路改为恒功率损耗依赖于运行电压接近额定值；电压偏移较大、研究励磁特性或进行精细损耗计算时，应恢复电压相关的励磁导纳模型。}
+
+\section{变压器的建模（二）：\texorpdfstring{$\Pi$}{Pi} 型电路}
+
+设串联阻抗 $Z_T$ 位于一次侧，把理想变压器一次侧的内部电压记为 $\dot U'_2$，并定义 $\dot U'_2=k_T\dot U_2$。采用图示电流参考方向时，端口方程为
+\begin{align}
+  \dot U_1 & =Z_T\dot I_1+k_T\dot U_2, \\
+  \dot I_1 & =\frac{\dot I_2}{k_T}.
+\end{align}
+相应传输矩阵为
+\begin{equation}
+  \begin{bmatrix}
+    \dot U_1 \\[2pt]
+    \dot I_1
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+    k_T & Z_T/k_T \\[2pt]
+    0   & 1/k_T
+  \end{bmatrix}
+  \begin{bmatrix}
+    \dot U_2 \\[2pt]
+    \dot I_2
+  \end{bmatrix}.
+\end{equation}
+
+将端口电流改写为节点电压的函数，有
+\begin{align}
+  \dot I_1
+   & =\frac{k_T}{Z_T}(\dot U_1-\dot U_2)
+  +\frac{1-k_T}{Z_T}\dot U_1,            \\
+  \dot I_2
+   & =\frac{k_T}{Z_T}(\dot U_1-\dot U_2)
+  -\frac{k_T(k_T-1)}{Z_T}\dot U_2.
+\end{align}
+由此得到无磁耦合的 $\Pi$ 型等值电路，其三个支路阻抗为
+\begin{align}
+  Z   & =\frac{Z_T}{k_T},        \\
+  Z_1 & =\frac{Z_T}{1-k_T},      \\
+  Z_2 & =\frac{Z_T}{k_T(k_T-1)}.
+\end{align}
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[every node/.style={font=\small}]
+    \draw[notesline] (0,0) -- (0,2.8) -- (1.4,2.8);
+    \draw[notesline,fill=white] (1.4,2.52) rectangle (3.0,3.08);
+    \node at (2.2,2.8) {$Z$};
+    \draw[notesline] (3.0,2.8) -- (4.4,2.8) -- (4.4,0) -- (0,0);
+    \draw[notesline,fill=white] (-0.28,0.85) rectangle (0.28,2.05);
+    \node[left] at (-0.36,1.45) {$Z_1$};
+    \draw[notesline,fill=white] (4.12,0.85) rectangle (4.68,2.05);
+    \node[right] at (4.76,1.45) {$Z_2$};
+    \draw[notesflow] (-0.25,3.22) -- (0.80,3.22) node[midway,above] {$\dot I_1$};
+    \draw[notesflow] (3.55,3.22) -- (4.60,3.22) node[midway,above] {$\dot I_2$};
+    \node[left] at (0,2.35) {$+$};
+    \node[left] at (0,0.45) {$-$};
+    \node[left] at (-0.30,1.40) {$\dot U_1$};
+    \node[right] at (4.4,2.35) {$+$};
+    \node[right] at (4.4,0.45) {$-$};
+    \node[right] at (4.70,1.40) {$\dot U_2$};
+  \end{tikzpicture}
+  \caption{变压器的 $\Pi$ 型等值电路}
+\end{figure}
+
+这种表示消除了理想变压器造成的磁耦合，便于直接组装节点导纳矩阵。当 $k_T=1$ 时，两条并联支路的导纳均为零，即支路开路，只剩串联阻抗 $Z_T$。
+
+\reviewnote{原稿旁注“P29 起”。由前两式直接消元可知，传输矩阵右上角应为 $Z_T/k_T$；原稿该位置疑似写成 $k_TZ_T$，现按端口方程校正。这里假定 $k_T$ 为实数，且 $Z_T$ 位于所声明的参考侧。若模型包含相移变压器，节点导纳式需要使用复变比及其共轭，不能把上述实数公式直接照搬。$Z_1$、$Z_2$ 是代数等值支路，可能出现负值，并不表示真实的被动元件。}
+
+% 原始手写笔记：MsgID 5541810728296544214，文件时间 2026-10-13 15:41:22。
+\section{线路的等值模型}
+
+\subsection{线路类型与四个基本参数}
+
+输电线路主要分为架空线路和电缆线路。架空线路常采用钢芯铝绞线，钢芯主要承受机械拉力，外层铝线主要导电；电缆则由导体、绝缘层、屏蔽或护套等部分组成，具体结构随电压等级和用途而变。
+
+线路中的电流产生发热和磁场效应，分别用电阻 $R$ 和电感 $L$ 描述；线路电压产生电场及绝缘介质中的泄漏效应，分别用电容 $C$ 和电导 $G$ 描述。
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[every node/.style={font=\small}]
+    \node[font=\small\bfseries] at (-3.0,2.05) {架空导线截面示意};
+    \draw[notesline,fill=gray!30] (-3.0,0.65) circle (0.52);
+    \foreach \a in {0,60,...,300}
+    \draw[notesline] ({-3.0+0.94*cos(\a)},{0.65+0.94*sin(\a)}) circle (0.42);
+    \node[align=center] at (-3.0,-1.00) {内层钢芯\\外层铝线};
+    \node[font=\small\bfseries] at (1.35,2.05) {电缆截面示意};
+    \draw[notesline,fill=gray!30] (1.35,0.65) circle (1.20);
+    \draw[notesline,fill=white] (1.35,0.65) circle (0.84);
+    \draw[notesline,fill=gray!30] (1.35,0.65) circle (0.36);
+    \draw[notesflow] (2.85,1.25) -- (2.18,1.02);
+    \node[right,align=left] at (2.90,1.28) {护套或屏蔽层};
+    \draw[notesflow] (2.85,0.45) -- (1.84,0.55);
+    \node[right] at (2.90,0.45) {绝缘层};
+    \draw[notesflow] (2.85,-0.35) -- (1.60,0.35);
+    \node[right] at (2.90,-0.35) {导体};
+  \end{tikzpicture}
+  \caption{架空导线与电缆的结构示意}
+\end{figure}
+
+取单位长度参数 $r_0$、$L_0$、$g_0$ 和 $C_0$，一小段线路可以表示为串联电阻、电感和并联电导、电容。
+
+\begin{figure}[H]
+  \centering
+  \begin{notescircuit}
+    \draw (0,0) -- (0,2.8)
+    to[R,l={$r_0\,\mathrm{d}x$}] (2.2,2.8)
+    to[L,l={$L_0\,\mathrm{d}x$}] (4.4,2.8) -- (5.3,2.8);
+    \draw (0,0) -- (5.3,0);
+    \draw (4.7,2.8) to[R,l_={$1/(g_0\,\mathrm{d}x)$}] (4.7,0);
+    \draw (5.3,2.8) to[C,l_={$C_0\,\mathrm{d}x$}] (5.3,0);
+    \draw[notesflow] (0.20,3.22) -- (1.05,3.22) node[midway,above] {$\dot I$};
+  \end{notescircuit}
+  \caption{线路微元的分布参数模型}
+\end{figure}
+
+\subsection{电阻、电抗与电纳}
+
+均匀导线的单位长度电阻可写为
+\begin{equation}
+  r_0=\frac{\rho}{A},
+\end{equation}
+其中 $\rho$ 的长度单位应与 $r_0$ 的“单位长度”相匹配，$A$ 为导体截面积。实际交流电阻还受温度、集肤效应和绞线结构等影响。原稿给出的温度修正式为
+\begin{equation}
+  r_t=r_{20}\left[1+\alpha(t-20)\right].
+\end{equation}
+原稿记录的温度系数近似值为
+\begin{equation}
+  \alpha_{\mathrm{Cu}}=0.00381\ {{}^\circ\mathrm{C}}^{-1},
+  \qquad
+  \alpha_{\mathrm{Al}}=0.0036\ {{}^\circ\mathrm{C}}^{-1}.
+\end{equation}
+
+三相架空线经过完整换位后，等值几何平均距离为
+\begin{equation}
+  D_{\mathrm{eq}}=\sqrt[3]{D_{AB}D_{BC}D_{CA}}.
+\end{equation}
+对单根实心圆导线，几何平均半径近似为
+\begin{equation}
+  r'=r\mathrm{e}^{-1/4}\approx0.779r.
+\end{equation}
+在原稿采用的工频和单位约定下，单位长度感抗写为
+\begin{equation}
+  x_0=0.1445\log_{10}\frac{D_{\mathrm{eq}}}{r'}
+  \quad \Omega/\mathrm{km}.
+\end{equation}
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[every node/.style={font=\small}]
+    \coordinate (A) at (0,2.8);
+    \coordinate (B) at (-3.1,0);
+    \coordinate (C) at (3.8,0.35);
+    \fill (A) circle (2pt) node[above] {A};
+    \fill (B) circle (2pt) node[below left] {B};
+    \fill (C) circle (2pt) node[below right] {C};
+    \draw[notesline] (A) -- (B) node[midway,left] {$D_{AB}$};
+    \draw[notesline] (B) -- (C) node[midway,below] {$D_{BC}$};
+    \draw[notesline] (C) -- (A) node[midway,right] {$D_{CA}$};
+    \node[align=center] at (6.2,1.45)
+    {完整换位后，各相在一个换位循环内\\依次占据三个几何位置};
+    \draw[notesflow] (5.15,1.45) -- (3.95,1.45);
+  \end{tikzpicture}
+  \caption{三相架空线的相间距离与换位思想}
+\end{figure}
+
+若完整换位后各相的自感系数相同、互感系数也可用同一平均值 $M$ 表示，则以 a 相为例，瞬时磁链满足
+\begin{align}
+  \psi_a(t)            & =L_{aa}i_a(t)+M i_b(t)+M i_c(t), \\
+  i_a(t)+i_b(t)+i_c(t) & =0,                              \\
+  \psi_a(t)            & =(L_{aa}-M)i_a(t).
+\end{align}
+因此该对称模型下的每相等值电感为
+\begin{equation}
+  L_a=L_{aa}-M.
+\end{equation}
+
+分裂导线通过增大等效半径来降低导线表面的电场强度，从而减轻电晕及无线电干扰，并可降低线路感抗。对换位线路，原稿给出的单位长度电纳近似式为
+\begin{equation}
+  b_0=2\pi fC_0
+  =\frac{7.58}{\log_{10}(D_{\mathrm{eq}}/r_{\mathrm{eq}})}
+  \times10^{-6}\quad \mathrm{S/km}.
+\end{equation}
+
+\reviewnote{原稿旁注“书 P10 起”。感抗公式分母处字迹疑似为 $r^2$，但结合紧接着的 $r'=0.779r$，这里整理为几何平均半径 $r'$；请对照教材第 10 页附近确认符号。电纳式中的 $r_{\mathrm{eq}}$ 是电容计算采用的等效半径，不能未经核对就与感抗公式中的几何平均半径混用。$0.1445$ 与 $7.58\times10^{-6}$ 均包含频率、对数底和长度单位等约定，换单位或换频率时需要重新推导。原稿的铜、铝温度系数也应按教材规定的材料状态和温度范围校核。换位后的简化只适用于对称平均模型，不能据此断言未换位线路的三个互感完全相同。}
+
+% 原始手写笔记：MsgID 727534396516291447，文件时间 2026-10-13 15:41:27。
+\subsection{集中参数近似与分布参数模型}
+
+线路长度较短时，可以忽略对地电容而采用串联阻抗模型；中等长度线路常采用 $\Pi$ 型集中参数模型；更长线路则需要使用分布参数模型，或用足够多的 $\Pi$ 型单元逼近。
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[every node/.style={font=\small}]
+    \node[anchor=east] at (-0.4,2.65) {短线路：};
+    \draw[notesline] (0,2.65) -- (0.8,2.65);
+    \draw[notesline,fill=white] (0.8,2.38) rectangle (3.2,2.92);
+    \node at (2.0,2.65) {$Z=z_0\ell$};
+    \draw[notesline] (3.2,2.65) -- (4.0,2.65);
+    \node[anchor=east] at (-0.4,0.55) {中等长度线路：};
+    \draw[notesline] (0,0.55) -- (0,1.65) -- (0.8,1.65);
+    \draw[notesline,fill=white] (0.8,1.38) rectangle (3.2,1.92);
+    \node at (2.0,1.65) {$Z=z_0\ell$};
+    \draw[notesline] (3.2,1.65) -- (4.0,1.65) -- (4.0,0.55) -- (0,0.55);
+    \draw[notesline,fill=white] (-0.25,0.75) rectangle (0.25,1.45);
+    \node[left] at (-0.34,1.10) {$Y/2$};
+    \draw[notesline,fill=white] (3.75,0.75) rectangle (4.25,1.45);
+    \node[right] at (4.34,1.10) {$Y/2$};
+    \node[right,align=left] at (5.15,1.10)
+    {$Y=y_0\ell$\\$z_0=r_0+\mathrm{j}x_0$\\$y_0=g_0+\mathrm{j}b_0$};
+  \end{tikzpicture}
+  \caption{短线路和中等长度线路的集中参数模型}
+\end{figure}
+
+原稿给出的经验范围是：小于约 $100\,\mathrm{km}$ 时采用短线路模型，约 $100\sim300\,\mathrm{km}$ 时采用一个 $\Pi$ 型，中间长度更大时采用多个 $\Pi$ 型串联或分布参数模型。
+
+单位长度串联阻抗和并联导纳为
+\begin{align}
+  z_0 & =r_0+\mathrm{j}\omega L_0=r_0+\mathrm{j}x_0, \\
+  y_0 & =g_0+\mathrm{j}\omega C_0=g_0+\mathrm{j}b_0.
+\end{align}
+令坐标 $x$ 从受端指向送端，则微元上的电压、电流关系为
+\begin{align}
+  \mathrm{d}\dot U & =z_0\dot I\,\mathrm{d}x,                    \\
+  \mathrm{d}\dot I & =y_0(\dot U+\mathrm{d}\dot U)\,\mathrm{d}x.
+\end{align}
+忽略二阶微小量后，得到电报方程
+\begin{align}
+  \frac{\mathrm{d}\dot U}{\mathrm{d}x} & =z_0\dot I, \\
+  \frac{\mathrm{d}\dot I}{\mathrm{d}x} & =y_0\dot U.
+\end{align}
+进一步有
+\begin{align}
+  \frac{\mathrm{d}^2\dot U}{\mathrm{d}x^2} & =z_0y_0\dot U, \\
+  \frac{\mathrm{d}^2\dot I}{\mathrm{d}x^2} & =z_0y_0\dot I.
+\end{align}
+定义传播常数和波阻抗为
+\begin{align}
+  \gamma & =\sqrt{z_0y_0}=\alpha+\mathrm{j}\beta, \\
+  Z_c    & =\sqrt{\frac{z_0}{y_0}}
+  =R_c+\mathrm{j}X_c
+  =\lvert Z_c\rvert\mathrm{e}^{\mathrm{j}\theta_c},
+\end{align}
+其中 $\alpha$ 为衰减常数，$\beta$ 为相位常数。通解为
+\begin{align}
+  \dot U(x) & =A_1\mathrm{e}^{\gamma x}+A_2\mathrm{e}^{-\gamma x}, \\
+  \dot I(x) & =\frac{A_1}{Z_c}\mathrm{e}^{\gamma x}
+  -\frac{A_2}{Z_c}\mathrm{e}^{-\gamma x},
+\end{align}
+其中 $A_1$、$A_2$ 由边界条件决定。也可写成矩阵形式
+\begin{equation}
+  \begin{bmatrix}
+    \dot U(x) \\[2pt]
+    \dot I(x)
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+    A_1 \\[2pt]
+    A_1/Z_c
+  \end{bmatrix}
+  \mathrm{e}^{\gamma x}
+  +
+  \begin{bmatrix}
+    A_2 \\[2pt]
+    -A_2/Z_c
+  \end{bmatrix}
+  \mathrm{e}^{-\gamma x}.
+\end{equation}
+
+对架空线路，通常有 $g_0\approx0$ 且 $r_0\ll\omega L_0$。在无损近似下
+\begin{align}
+  z_0    & \approx\mathrm{j}\omega L_0,          \\
+  y_0    & \approx\mathrm{j}\omega C_0,          \\
+  Z_c    & \approx\sqrt{\frac{L_0}{C_0}},        \\
+  \gamma & \approx\mathrm{j}\omega\sqrt{L_0C_0}.
+\end{align}
+当受端负荷与波阻抗匹配时，线路只存在正向行波，沿线电压幅值在无损模型中保持不变。用三相线电压 $U$ 表示的自然功率为
+\begin{equation}
+  P_{\mathrm{nat}}=\frac{U^2}{Z_c}.
+\end{equation}
+在无损、功率因数接近 $1$ 且端电压条件相同的定性比较下，若 $U_1$、$U_2$ 分别表示送端和受端电压，原稿记录为
+\begin{align}
+  P>P_{\mathrm{nat}} & :\quad U_2<U_1, \\
+  P<P_{\mathrm{nat}} & :\quad U_2>U_1.
+\end{align}
+
+\reviewnote{原稿在分布参数等值电路旁注“P18 起”。传播常数又写成疑似 $\beta+\mathrm{j}\alpha$，现按通用记号改为 $\gamma=\alpha+\mathrm{j}\beta$；若课程讲义另有定义，应统一全文。原稿中的 $100\,\mathrm{km}$ 和 $300\,\mathrm{km}$ 是经验分界，不是严格定律：电压等级、电缆电容和计算目的都会改变模型选择。$P$ 与 $P_{\mathrm{nat}}$ 对端电压高低的判断只在相应近似和边界条件下成立，不能直接推广到任意有损线路和任意复功率负荷。长线路无损近似、波阻抗匹配和自然功率的条件可与 NPTEL 的长线路课程材料交叉核对：\href{https://archive.nptel.ac.in/content/storage2/courses/108104051/chapter_2/2_8.html}{Long Transmission Line, NPTEL}。}
+
+% 原始手写笔记：MsgID 923610450715154692，文件时间 2026-10-13 15:41:30。
+\section{负荷的等值}
+
+稳态计算中，负荷常采用以下两种基本等值方式。
+\begin{enumerate}
+  \setlength{\itemsep}{-0.25\baselineskip}
+  \setlength{\parsep}{0pt}
+  \item 恒功率模型：把负荷表示为给定复功率
+        \begin{equation}
+          \dot S_L=P_L+\mathrm{j}Q_L.
+        \end{equation}
+        当系统电压和频率偏离额定值不大时，可用该模型近似描述稳态负荷。
+  \item 恒阻抗模型：把负荷表示为
+        \begin{equation}
+          Z_L=R_L+\mathrm{j}X_L.
+        \end{equation}
+        该模型常用于需要将负荷直接并入网络阻抗或导纳的计算，例如某些短路计算。
+\end{enumerate}
+
+实际负荷由多种设备组成，并随时间和运行方式随机变化。其静态特性更一般地可写成
+\begin{align}
+  P_L & =F_P(U,f), \\
+  Q_L & =F_Q(U,f),
+\end{align}
+动态负荷还需要引入状态变量和相应的动态方程。工程中的综合负荷模型及参数通常需要根据负荷组成和试验、量测数据确定。
+
+\reviewnote{原稿只给出恒功率、恒阻抗以及“实际负荷具有随机性和动态特性”的提纲，未给出 ZIP 模型比例、频率系数或动态方程，因此本稿不自行补入具体参数。原稿页码只写“下册 P”而未填写数字，建议后续查到何仰赞第四版下册的确切页码后补全。恒功率模型的适用条件也应结合潮流计算的电压范围核对。}
 
 \end{document}
